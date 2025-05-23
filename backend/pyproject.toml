@@ -6,7 +6,7 @@ authors = [
     {name = "bmotevalli",email = "b.motevalli@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.13,<4.0"
+requires-python = ">=3.12,<4.0"
 classifiers = [
     "Development Status :: Kick off",
     "Intended Audience :: Public",

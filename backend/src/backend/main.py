@@ -1,7 +1,7 @@
 # src/backend/main.py
 from fastapi import FastAPI
-from backend.auth.dependencies import fastapi_users, auth_backend
 from backend.schemas.user import UserRead, UserCreate, UserUpdate
+from backend.config import settings
 from backend.db import engine, Base
 from backend.routes.auth import router as auth_router
 
