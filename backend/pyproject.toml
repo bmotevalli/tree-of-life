@@ -1,0 +1,47 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "bmotevalli",email = "b.motevalli@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13,<4.0"
+classifiers = [
+    "Development Status :: Kick off",
+    "Intended Audience :: Public",
+    "License :: MIT",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Meditation"
+]
+
+[tool.poetry]
+packages = [{include = "backend", from = "src"}]
+
+
+[tool.poetry.dependencies]
+# Core packages
+fastapi = "^0.115.0"
+uvicorn = { extras = ["standard"], version = "^0.29.0" }
+
+# Pydantic core and settings
+pydantic = "^2.11.1"
+pydantic-settings = "^2.9.1"
+sqlalchemy = "^2.0.41"
+asyncpg = "^0.30.0"
+fastapi-users = {extras = ["sqlalchemy"], version = "^14.0.1"}
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.0"
+isort = "^5.13.2"
+mypy = "^1.10.0"
+pytest = "^8.2.0"
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
