@@ -1,6 +1,6 @@
 @use "@angular/material" as mat;
 
-@import "./styles/fonts.scss";
+@use "./styles/fonts.scss" as *;
 
 @tailwind base;
 @tailwind components;

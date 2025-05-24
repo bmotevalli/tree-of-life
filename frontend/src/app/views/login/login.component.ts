@@ -27,6 +27,7 @@ import { UserService } from '../../services/user.service';
 export class LoginComponent {
   email = signal<string>('');
   password = signal<string>('');
+  error = signal<string | null>(null);
   hidePassword = signal<boolean>(true);
 
   private userService = inject(UserService);
@@ -39,13 +40,17 @@ export class LoginComponent {
 
   onSubmit() {
     this.userService.login(this.email(), this.password()).subscribe({
-      next: (res) => {
-        localStorage.setItem('access_token', res.access_token);
-        this.router.navigate(['/']);
+      next: (response) => {
+        localStorage.setItem('access_token', response.access_token);
+        // Optional: fetch and store user info
+        this.userService.getCurrentUser().subscribe((user) => {
+          localStorage.setItem('user', JSON.stringify(user));
+          this.router.navigateByUrl('/dashboard');
+        });
       },
       error: (err) => {
-        alert('Login failed');
         console.error(err);
+        this.error.set('ورود ناموفق بود');
       },
     });
   }
