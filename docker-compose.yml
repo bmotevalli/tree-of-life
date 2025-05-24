@@ -27,6 +27,18 @@ services:
     depends_on:
       - db
 
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile.dev
+  #   ports:
+  #     - "4200:4200"
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules # avoid overwriting node_modules
+  #   depends_on:
+  #     - backend
+
   # frontend service will be added here later
 
 volumes:

@@ -1,0 +1,13 @@
+@font-face {
+  font-family: "yekan";
+  src: url("/assets/fonts/YekanBakh-Regular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Add more weights here if needed */
+
+body {
+  font-family: "yekan", Roboto;
+}
