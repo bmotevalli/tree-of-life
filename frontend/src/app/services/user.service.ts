@@ -24,7 +24,7 @@ export class UserService {
   }
 
   getCurrentUser(): Observable<User> {
-    return this.http.get<User>(`${this.baseUrl}/users/me`);
+    return this.http.get<User>(`${this.baseUrl}/auth/users/me`);
   }
 
   // Add other user/auth/api methods as needed

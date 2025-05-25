@@ -1,0 +1,68 @@
+import { Component, signal, computed } from '@angular/core';
+import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
+
+@Component({
+  standalone: true,
+  selector: 'app-layout',
+  templateUrl: './layout.component.html',
+  imports: [MatIconModule, RouterModule, RouterOutlet],
+})
+export class LayoutComponent {
+  showMobileMenu = signal(false);
+  sidebarOpen = signal(false);
+  currentRoute = signal('');
+  isMobile = signal(window.innerWidth < 768);
+
+  constructor(private router: Router) {
+    // Watch for route changes
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        const nav = event as NavigationEnd;
+        this.currentRoute.set(nav.urlAfterRedirects);
+        this.showMobileMenu.set(false);
+        this.sidebarOpen.set(false);
+      });
+
+    // Optional: track screen resize for `isMobile`
+    window.addEventListener('resize', () => {
+      this.isMobile.set(window.innerWidth < 768);
+    });
+  }
+
+  navItems = [
+    {
+      icon: 'book',
+      label: 'دفترچه',
+      route: '/notebook',
+      sideNavItems: [
+        {
+          icon: 'task',
+          label: 'تمرینات امروز',
+          route: '/notebook/daily-tasks',
+        },
+        { icon: 'plan', label: 'برنامه ریزی', route: '/notebook/planing' },
+        { icon: 'plan', label: 'تاریخچه تمرینات', route: '/notebook/history' },
+        { icon: 'plan', label: 'شرح حال من', route: '/notebook/reporting' },
+      ],
+    },
+    {
+      icon: 'settings',
+      label: 'تنظیمات',
+      route: '/settings',
+    },
+    {
+      icon: 'person',
+      label: 'پروفایل',
+      route: '/profile',
+    },
+    { icon: 'logout', label: 'خروج', route: '/logout' },
+  ];
+
+  activeNavItem = computed(() =>
+    this.navItems.find((item) => this.currentRoute().startsWith(item.route))
+  );
+}

@@ -6,10 +6,15 @@ import {
   HttpEvent,
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { TokenForApi } from '../../interfaces/user.interface';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  private includeTokenForRoutes = ['users', 'reports/admin'];
+  private includeTokenForRoutes: TokenForApi[] = [
+    { prefix: 'auth', methods: ['*'] },
+    { prefix: 'reports/admin', methods: ['GET', 'POST'] },
+  ];
+
   private baseApiUrl = (window as any)['env']?.baseApiUrl || '';
 
   intercept(
@@ -22,8 +27,11 @@ export class AuthInterceptor implements HttpInterceptor {
       ? req.url.replace(this.baseApiUrl, '')
       : req.url;
 
-    const shouldAttachToken = this.includeTokenForRoutes.some((prefix) =>
-      urlWithoutBase.startsWith(`/${prefix}`)
+    const shouldAttachToken = this.includeTokenForRoutes.some(
+      ({ prefix, methods }) =>
+        urlWithoutBase.startsWith(`/${prefix}`) &&
+        (methods.includes('*') ||
+          methods.includes(req.method.toUpperCase() as any))
     );
 
     if (token && shouldAttachToken) {

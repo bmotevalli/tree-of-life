@@ -1,0 +1,82 @@
+<!-- layout.component.html -->
+<main class="h-screen flex flex-col">
+  <!-- Top Navbar -->
+  <header
+    class="flex justify-between items-center bg-primary text-white p-4 shadow-md"
+  >
+    <!-- Desktop Nav Items -->
+    <div class="hidden md:flex gap-4 items-center">
+      @for (item of navItems; track item.route) {
+      <a
+        [routerLink]="item.route"
+        class="flex items-center gap-2 px-3 py-1 rounded hover:bg-white hover:text-primary transition"
+      >
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span class="hidden sm:inline">{{ item.label }}</span>
+      </a>
+      }
+    </div>
+
+    <!-- Mobile Menu Dropdown -->
+    <div class="md:hidden relative">
+      <button
+        (click)="showMobileMenu.set(!showMobileMenu())"
+        class="flex items-center gap-2"
+      >
+        <mat-icon>menu</mat-icon>
+        <span>صفحات</span>
+      </button>
+      @if (showMobileMenu()) {
+      <div
+        class="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-md z-50"
+      >
+        @for (item of navItems; track item.route) {
+        <a
+          [routerLink]="item.route"
+          class="block px-4 py-2 hover:bg-gray-100"
+          >{{ item.label }}</a
+        >
+        }
+      </div>
+      }
+    </div>
+
+    <!-- Contextual Sidebar Toggle on Mobile -->
+    @if (activeNavItem()?.sideNavItems?.length) {
+    <button class="md:hidden" (click)="sidebarOpen.set(!sidebarOpen())">
+      <mat-icon>view_sidebar</mat-icon>
+    </button>
+    }
+  </header>
+
+  <!-- Content Wrapper -->
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Main content -->
+    <section class="flex-1 overflow-y-auto p-4">
+      <router-outlet></router-outlet>
+    </section>
+
+    <!-- Optional Sidebar (contextual side menu) -->
+    @if (activeNavItem()?.sideNavItems?.length) {
+    <aside
+      class="w-64 bg-white border-l p-4 transform transition-transform duration-300 z-40"
+      [class.hidden]="!sidebarOpen() && isMobile()"
+      [class.md\:block]="true"
+      [class.md\:translate-x-0]="true"
+      [class.translate-x-full]="!sidebarOpen() && isMobile()"
+    >
+      <nav class="flex flex-col gap-2">
+        @for (item of activeNavItem()?.sideNavItems; track item.route) {
+        <a
+          [routerLink]="item.route"
+          class="flex items-center gap-2 p-2 rounded hover:bg-gray-100"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span>{{ item.label }}</span>
+        </a>
+        }
+      </nav>
+    </aside>
+    }
+  </div>
+</main>

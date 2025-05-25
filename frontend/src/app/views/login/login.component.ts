@@ -45,7 +45,7 @@ export class LoginComponent {
         // Optional: fetch and store user info
         this.userService.getCurrentUser().subscribe((user) => {
           localStorage.setItem('user', JSON.stringify(user));
-          this.router.navigateByUrl('/dashboard');
+          this.router.navigateByUrl('/notebook');
         });
       },
       error: (err) => {
