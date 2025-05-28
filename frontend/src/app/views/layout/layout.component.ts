@@ -1,18 +1,33 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, ViewChild } from '@angular/core';
 import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatListModule } from '@angular/material/list';
+import { MatNavList } from '@angular/material/list';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { RouterModule } from '@angular/router';
 
 @Component({
   standalone: true,
   selector: 'app-layout',
   templateUrl: './layout.component.html',
-  imports: [MatIconModule, RouterModule, RouterOutlet],
+  imports: [
+    MatIconModule,
+    RouterModule,
+    RouterOutlet,
+    MatToolbarModule,
+    MatButtonModule,
+    MatListModule,
+    MatNavList,
+    MatSidenavModule,
+  ],
+  styleUrl: './layout.component.scss',
 })
 export class LayoutComponent {
   showMobileMenu = signal(false);
-  sidebarOpen = signal(false);
+  sidebarOpen = signal(true);
   currentRoute = signal('');
   isMobile = signal(window.innerWidth < 768);
 
@@ -40,13 +55,25 @@ export class LayoutComponent {
       route: '/notebook',
       sideNavItems: [
         {
-          icon: 'task',
+          icon: 'assignment',
           label: 'تمرینات امروز',
           route: '/notebook/daily-tasks',
         },
-        { icon: 'plan', label: 'برنامه ریزی', route: '/notebook/planing' },
-        { icon: 'plan', label: 'تاریخچه تمرینات', route: '/notebook/history' },
-        { icon: 'plan', label: 'شرح حال من', route: '/notebook/reporting' },
+        {
+          icon: 'edit_calendar',
+          label: 'برنامه ریزی',
+          route: '/notebook/planing',
+        },
+        {
+          icon: 'archive',
+          label: 'تاریخچه تمرینات',
+          route: '/notebook/history',
+        },
+        {
+          icon: 'monitoring',
+          label: 'شرح حال من',
+          route: '/notebook/reporting',
+        },
       ],
     },
     {

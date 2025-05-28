@@ -17,6 +17,9 @@ html {
       ),
       typography: "yekan",
       density: 0,
+      shape: (
+        borderRadius: 0px,
+      ),
     )
   );
 }

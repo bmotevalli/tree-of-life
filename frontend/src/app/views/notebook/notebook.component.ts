@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-notebook',
-  imports: [],
+  imports: [RouterOutlet],
   templateUrl: './notebook.component.html',
-  styleUrl: './notebook.component.scss'
+  styleUrl: './notebook.component.scss',
 })
-export class NotebookComponent {
-
-}
+export class NotebookComponent {}
