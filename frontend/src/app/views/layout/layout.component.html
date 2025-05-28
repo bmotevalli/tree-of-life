@@ -13,6 +13,7 @@
       [routerLink]="item.route"
       routerLinkActive="active-link"
       class="hover:text-yellow-500 text-md transition flex items-center gap-1"
+      (click)="onNavItemClick(item)"
     >
       <span>{{ item.label }}</span>
       <!-- <mat-icon>{{ item.icon }}</mat-icon> -->
@@ -34,6 +35,7 @@
       <a
         [routerLink]="item.route"
         class="block px-4 py-2 hover:bg-gray-100 text-md flex items-center gap-1"
+        (click)="onNavItemClick(item)"
       >
         <mat-icon>{{ item.icon }}</mat-icon>
         <span>{{ item.label }}</span>

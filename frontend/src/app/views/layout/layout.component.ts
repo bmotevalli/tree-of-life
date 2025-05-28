@@ -1,4 +1,4 @@
-import { Component, signal, computed, ViewChild } from '@angular/core';
+import { Component, signal, computed, ViewChild, inject } from '@angular/core';
 import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatNavList } from '@angular/material/list';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { RouterModule } from '@angular/router';
+import { NavItem } from '../../interfaces/layout.interface';
 
 @Component({
   standalone: true,
@@ -31,7 +32,9 @@ export class LayoutComponent {
   currentRoute = signal('');
   isMobile = signal(window.innerWidth < 768);
 
-  constructor(private router: Router) {
+  private router = inject(Router);
+
+  constructor() {
     // Watch for route changes
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
@@ -48,7 +51,7 @@ export class LayoutComponent {
     });
   }
 
-  navItems = [
+  navItems: NavItem[] = [
     {
       icon: 'book',
       label: 'دفترچه',
@@ -92,4 +95,13 @@ export class LayoutComponent {
   activeNavItem = computed(() =>
     this.navItems.find((item) => this.currentRoute().startsWith(item.route))
   );
+
+  onNavItemClick(item: NavItem) {
+    if (item.sideNavItems?.length) {
+      const firstChildRoute = item.sideNavItems[0].route;
+      this.router.navigate([firstChildRoute]);
+    } else {
+      this.router.navigate([item.route]);
+    }
+  }
 }
