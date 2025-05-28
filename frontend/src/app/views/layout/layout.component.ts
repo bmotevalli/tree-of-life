@@ -6,8 +6,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatNavList } from '@angular/material/list';
-import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
 import { NavItem } from '../../interfaces/layout.interface';
 
 @Component({
@@ -23,6 +24,7 @@ import { NavItem } from '../../interfaces/layout.interface';
     MatListModule,
     MatNavList,
     MatSidenavModule,
+    MatCardModule,
   ],
   styleUrl: './layout.component.scss',
 })

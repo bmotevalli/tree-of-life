@@ -1,1 +1,106 @@
-<p>tasks works!</p>
+<form class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow space-y-6">
+  <h2 class="text-xl font-bold text-center">برگه تمرین روزانه</h2>
+
+  <!-- 1. اتفاقات مهم امروز -->
+  <div>
+    <label for="events" class="block font-semibold mb-1"
+      >1. اتفاقات مهم امروز</label
+    >
+    <p class="text-sm text-gray-600 mb-2">
+      امروز چه اتفاقی افتاد که روی حالت روحی یا رفتارم تأثیر گذاشت؟
+    </p>
+    <textarea
+      id="events"
+      rows="3"
+      class="w-full p-2 border rounded"
+      placeholder="مثال: در جلسه کاری انتقاد شدم / با یکی بحث کردم ..."
+    ></textarea>
+  </div>
+
+  <!-- 2. کدام نیروها در من فعال بودند؟ -->
+  <div>
+    <label class="block font-semibold mb-1"
+      >2. کدام نیروها در من فعال بودند؟</label
+    >
+    <div class="space-y-6" dir="rtl">
+      <table class="w-full border border-gray-300 text-sm">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="p-2 border">جنبه</th>
+            <th class="p-2 border">سپیروت (نور)</th>
+            <th class="p-2 border">مقدار</th>
+            <th class="p-2 border">قلیپات (تاریکی)</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (force of forces; track force.label) {
+          <tr>
+            <td class="px-2">
+              <label class="text-xs text-semibold text-right">{{
+                force.label
+              }}</label>
+            </td>
+            <td class="px-2">
+              <span class="text-xs text-gray-600 min-w-[100px] text-right">
+                {{ force.dark }}
+              </span>
+            </td>
+            <td class="px-4">
+              <mat-slider
+                class="silder"
+                min="-100"
+                max="100"
+                step="1"
+                color="primary"
+              >
+                <input matSliderThumb />
+              </mat-slider>
+            </td>
+            <td class="px-2">
+              <span class="text-xs text-gray-600 min-w-[100px] text-left">
+                {{ force.light }}
+              </span>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 3. کجاها اشتباه گرفتم؟ -->
+  <div>
+    <label class="block font-semibold mb-1">3. کجاها اشتباه گرفتم؟</label>
+    <textarea
+      rows="2"
+      class="w-full p-2 border rounded mb-2"
+      placeholder="آیا چیزی رو نور دیدم که تاریکی بود؟"
+    ></textarea>
+    <textarea
+      rows="2"
+      class="w-full p-2 border rounded"
+      placeholder="آیا چیزی رو تاریکی دیدم که در واقع نور بود؟"
+    ></textarea>
+  </div>
+
+  <!-- 4. چه تغییری می‌خوام برای فردا؟ -->
+  <div>
+    <label class="block font-semibold mb-1"
+      >4. چه تغییری می‌خوام برای فردا؟</label
+    >
+    <textarea
+      rows="2"
+      class="w-full p-2 border rounded"
+      placeholder="مثال: با صداقت حرف بزنم / از روی محبت کمک کنم ..."
+    ></textarea>
+  </div>
+
+  <div class="text-center">
+    <button
+      type="submit"
+      class="bg-primary text-white px-6 py-2 rounded hover:bg-primary-dark"
+    >
+      ثبت تمرین
+    </button>
+  </div>
+</form>

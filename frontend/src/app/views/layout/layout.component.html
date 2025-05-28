@@ -14,6 +14,7 @@
       routerLinkActive="active-link"
       class="hover:text-yellow-500 text-md transition flex items-center gap-1"
       (click)="onNavItemClick(item)"
+      mat-button
     >
       <span>{{ item.label }}</span>
       <!-- <mat-icon>{{ item.icon }}</mat-icon> -->
@@ -29,12 +30,12 @@
     </button>
     @if (showMobileMenu()) {
     <div
-      class="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-md z-50"
+      class="absolute right-0 mt-2 w-44 bg-white text-black rounded shadow-md z-50 flex flex-col"
     >
       @for (item of navItems; track item.route) {
       <a
         [routerLink]="item.route"
-        class="block px-4 py-2 hover:bg-gray-100 text-md flex items-center gap-1"
+        class="px-4 py-2 hover:bg-gray-100 text-sm items-center gap-1 flex"
         (click)="onNavItemClick(item)"
       >
         <mat-icon>{{ item.icon }}</mat-icon>
@@ -69,7 +70,7 @@
 
   <!-- Main content -->
   <mat-sidenav-content class="bg-gray-100">
-    <section class="p-4">
+    <section [class.p-4]="!isMobile()" [class.p-0]="isMobile()">
       <router-outlet></router-outlet>
     </section>
   </mat-sidenav-content>

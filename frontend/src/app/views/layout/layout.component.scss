@@ -1,6 +1,10 @@
 .active-link {
   font-weight: semibold;
-  color: orange !important; // dark purple, or use a Tailwind class if preferred
+  background-color: rgb(
+    195,
+    131,
+    255
+  ) !important; // dark purple, or use a Tailwind class if preferred
 }
 
 .custom-sidenav {
