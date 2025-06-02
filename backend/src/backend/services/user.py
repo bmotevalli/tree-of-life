@@ -10,7 +10,7 @@ from fastapi_users.authentication import (
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
 
-from backend.db.user import User, get_user_db
+from backend.db.models.user import User, get_user_db
 
 SECRET = "SECRET"
 

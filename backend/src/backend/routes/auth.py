@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 # )
 from backend.services.user import auth_backend, current_active_user, fastapi_users
 from backend.schemas.user import UserRead, UserCreate, UserUpdate
-from backend.db.user import User
+from backend.db.models.user import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
