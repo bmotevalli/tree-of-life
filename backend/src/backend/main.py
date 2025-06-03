@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.config import settings
 from backend.db import create_db_and_tables
 from backend.routes.auth import router as auth_router
+from backend.routes.question import router as question_router
 
 app = FastAPI()
 
@@ -21,3 +22,4 @@ async def on_startup():
 
 # Routes
 app.include_router(auth_router)
+app.include_router(question_router)

@@ -28,7 +28,7 @@ from backend.config import settings
 
 # IMPORT MODLES
 from backend.db.models import question  # Import all your models here
-from backend.db.models import tag
+# from backend.db.models import tag
 from backend.db.models import user_answer
 from backend.db.models import user_question_set
 from backend.db.models import user

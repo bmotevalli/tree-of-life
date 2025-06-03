@@ -36,8 +36,8 @@ sqlalchemy = "^2.0.41"
 asyncpg = "^0.30.0"
 fastapi-users = {extras = ["sqlalchemy"], version = "^14.0.1"}
 alembic = "^1.16.1"
-fastapi-crudrouter = "^0.8.6"
 psycopg2-binary = "^2.9.10"
+fastapi-crudrouter = { git = "https://github.com/bmotevalli/fastapi-crudrouter.git"} # , rev = "643c2b290d75e60186078f96e028aa8f72b49ac1" }
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.4.0"

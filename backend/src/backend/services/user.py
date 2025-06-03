@@ -1,7 +1,7 @@
 import uuid
 from typing import Optional
 
-from fastapi import Depends, Request
+from fastapi import Depends, Request, HTTPException
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
@@ -11,6 +11,7 @@ from fastapi_users.authentication import (
 from fastapi_users.db import SQLAlchemyUserDatabase
 
 from backend.db.models.user import User, get_user_db
+from backend.enums.user import Role
 
 SECRET = "SECRET"
 
@@ -53,3 +54,14 @@ auth_backend = AuthenticationBackend(
 fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])
 
 current_active_user = fastapi_users.current_user(active=True)
+
+
+def admin_required(user: User = Depends(current_active_user)):
+    if user.role == Role.ADMIN:
+        return user
+    raise HTTPException(status_code=403, detail="Not enough permissions")
+
+def editor_required(user: User = Depends(current_active_user)):
+    if user.role == Role.ADMIN or user.role == Role.EDITOR:
+        return user
+    raise HTTPException(status_code=403, detail="Not enough permissions")

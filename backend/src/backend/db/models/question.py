@@ -3,16 +3,9 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from uuid import uuid4
 from backend.db import Base
-import enum
+from backend.enums.question import QuestionType
 
-class QuestionType(str, enum.Enum):
-    SHORT_TEXT = "short_text"
-    LONG_TEXT = "long_text"
-    YES_NO = "yes_no"
-    SINGLE_CHOICE = "single_choice"
-    MULTIPLE_CHOICE = "multiple_choice"
-    NUMBER = "number"
-    SLIDER = "slider"
+
 
 # Many-to-many association table for tagging
 question_tag_association = Table(
@@ -21,6 +14,15 @@ question_tag_association = Table(
     Column("question_id", UUID(as_uuid=True), ForeignKey("question.id")),
     Column("tag_id", UUID(as_uuid=True), ForeignKey("questiontag.id"))
 )
+
+
+class QuestionTag(Base):
+    __tablename__ = "questiontag"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    name = Column(String, unique=True, nullable=False)
+
+    questions = relationship("Question", secondary=question_tag_association, back_populates="tags")
+
 
 class Question(Base):
     __tablename__ = "question"
