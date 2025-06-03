@@ -3,10 +3,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.db import get_async_session
 from backend.db.models.question import Question
 from backend.schemas.question import QuestionCreate, QuestionRead
-from fastapi_crudrouter import SQLAlchemyCRUDRouter
+from backend.db.models.question import QuestionTag
+from backend.schemas.question import QuestionTagRead, QuestionTagCreate
+from backend.routes import CustomSQLAlchemyCRUDRouter
 from backend.services.user import current_active_user, admin_required
 
-router = SQLAlchemyCRUDRouter(
+question_router = CustomSQLAlchemyCRUDRouter(
     schema=QuestionRead,
     create_schema=QuestionCreate,
     db_model=Question,
@@ -14,10 +16,27 @@ router = SQLAlchemyCRUDRouter(
     paginate=100,
     prefix="questions",
     tags=["Questions"],
+    current_user_dependency=current_active_user,
     get_all_route=[Depends(current_active_user)],
     get_one_route=[Depends(current_active_user)],
     create_route=[Depends(admin_required)],
     update_route=[Depends(admin_required)],
     delete_one_route=[Depends(admin_required)],
     delete_all_route=False, #[Depends(admin_required)],
+)
+
+
+question_tag_router = CustomSQLAlchemyCRUDRouter(
+    schema=QuestionTagRead,
+    create_schema=QuestionTagCreate,
+    db_model=QuestionTag,
+    db=get_async_session,
+    current_user_dependency=current_active_user,
+    tags=["QuestionTags"],
+    get_all_route=[Depends(current_active_user)],
+    get_one_route=[Depends(current_active_user)],
+    create_route=[Depends(admin_required)],
+    update_route=[Depends(admin_required)],
+    delete_one_route=[Depends(admin_required)],
+    delete_all_route=False, # Typically avoid mass delete
 )

@@ -2,9 +2,8 @@ from sqlalchemy import Column, String, Enum, ForeignKey, JSON, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from uuid import uuid4
-from backend.db import Base
+from backend.db import BaseModel, Base
 from backend.enums.question import QuestionType
-
 
 
 # Many-to-many association table for tagging
@@ -16,7 +15,7 @@ question_tag_association = Table(
 )
 
 
-class QuestionTag(Base):
+class QuestionTag(BaseModel):
     __tablename__ = "questiontag"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     name = Column(String, unique=True, nullable=False)
@@ -24,7 +23,7 @@ class QuestionTag(Base):
     questions = relationship("Question", secondary=question_tag_association, back_populates="tags")
 
 
-class Question(Base):
+class Question(BaseModel):
     __tablename__ = "question"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     prompt = Column(String, nullable=False)
