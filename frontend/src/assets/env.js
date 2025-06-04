@@ -1,4 +1,4 @@
 window["env"] = {
-  // baseApiUrl: "http://backend:8000",
-  baseApiUrl: "http://localhost:8000",
+  // baseApiUrl: "http://backend:8080",
+  baseApiUrl: "http://localhost:8080",
 };

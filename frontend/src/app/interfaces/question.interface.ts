@@ -1,0 +1,16 @@
+export type QuestionType =
+  | 'short_text'
+  | 'long_text'
+  | 'yes_no'
+  | 'single_choice'
+  | 'multiple_choice'
+  | 'number'
+  | 'slider';
+
+export interface Question {
+  prompt: string;
+  type: QuestionType;
+  options?: string[]; // For multiple choice
+  meta?: any; // For slider config, etc.
+  tags?: string[];
+}

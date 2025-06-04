@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
-  selector: 'app-notebook',
+  selector: 'app-admin',
   imports: [RouterOutlet],
-  templateUrl: './notebook.component.html',
+  templateUrl: './admin.component.html',
 })
-export class NotebookComponent {}
+export class AdminComponent {}

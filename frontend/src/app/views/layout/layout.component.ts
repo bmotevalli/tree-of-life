@@ -56,7 +56,7 @@ export class LayoutComponent {
   navItems: NavItem[] = [
     {
       icon: 'book',
-      label: 'دفترچه',
+      label: 'دفترچه تمرینات',
       route: '/notebook',
       sideNavItems: [
         {
@@ -90,6 +90,23 @@ export class LayoutComponent {
       icon: 'person',
       label: 'پروفایل',
       route: '/profile',
+    },
+    {
+      icon: 'admin_panel_settings',
+      label: 'مدیریت',
+      route: '/admin',
+      sideNavItems: [
+        {
+          icon: 'question_answer',
+          label: 'تمرینات',
+          route: '/admin/questions',
+        },
+        {
+          icon: 'manage_accounts',
+          label: 'مدیریت کاربران',
+          route: '/admin/users',
+        },
+      ],
     },
     { icon: 'logout', label: 'خروج', route: '/logout' },
   ];

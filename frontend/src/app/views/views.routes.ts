@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { NotebookComponent } from './notebook/notebook.component';
+import { AdminComponent } from './admin/admin.component';
+import { QuestionsComponent } from './admin/questions/questions.component';
 import { AuthGuard } from '../core/guards/auth.guard';
 import { AdminGuard } from '../core/guards/admin.guard';
 
@@ -16,6 +18,40 @@ export const viewRoutes: Routes = [
     loadComponent: () =>
       import('./profile/profile.component').then((m) => m.ProfileComponent),
     canActivate: [AuthGuard],
+  },
+  {
+    path: 'admin',
+    component: AdminComponent,
+    canActivate: [AuthGuard, AdminGuard],
+    children: [
+      {
+        path: 'questions',
+        canActivate: [AuthGuard, AdminGuard],
+        component: QuestionsComponent,
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./admin/questions/questions-list.component').then(
+                (m) => m.QuestionsListComponent
+              ),
+          },
+          {
+            path: 'create',
+            loadComponent: () =>
+              import('./admin/questions/question-form.component').then(
+                (m) => m.QuestionFormComponent
+              ),
+          },
+        ],
+      },
+      {
+        path: 'users',
+        canActivate: [AuthGuard, AdminGuard],
+        loadComponent: () =>
+          import('./admin/users/users.component').then((m) => m.UsersComponent),
+      },
+    ],
   },
   {
     path: 'notebook',
