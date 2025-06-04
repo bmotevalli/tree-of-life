@@ -108,7 +108,7 @@ export class LayoutComponent {
         },
       ],
     },
-    { icon: 'logout', label: 'خروج', route: '/logout' },
+    // { icon: 'logout', label: 'خروج', route: '/logout' },
   ];
 
   activeNavItem = computed(() =>
@@ -122,5 +122,10 @@ export class LayoutComponent {
     } else {
       this.router.navigate([item.route]);
     }
+  }
+
+  onLogout() {
+    localStorage.removeItem('access_token');
+    this.router.navigate(['/login']);
   }
 }
