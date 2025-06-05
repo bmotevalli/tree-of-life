@@ -33,21 +33,3 @@ class TimestampMixin:
 class BaseModel(Base, TimestampMixin):
     __abstract__ = True
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-
-# =============================
-# 👇 EVENT LISTENERS
-# =============================
-from sqlalchemy import event
-from zoneinfo import ZoneInfo
-def get_perth_time():
-    return datetime.now(ZoneInfo("Australia/Perth"))
-
-
-@event.listens_for(BaseModel, "before_insert", propagate=True)
-def set_created_fields(mapper, connection, target):
-    target.created_at = get_perth_time()
-    target.updated_at = get_perth_time()
-
-@event.listens_for(BaseModel, "before_update", propagate=True)
-def set_updated_fields(mapper, connection, target):
-    target.updated_at = get_perth_time()

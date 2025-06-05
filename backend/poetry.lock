@@ -530,7 +530,7 @@ fastapi = "*"
 type = "git"
 url = "https://github.com/bmotevalli/fastapi-crudrouter.git"
 reference = "HEAD"
-resolved_reference = "a7253b82771702c98794b0de58301365fe33573e"
+resolved_reference = "c9f6b0d95a89081bf86f6301693d43e23ada2ae5"
 
 [[package]]
 name = "fastapi-users"

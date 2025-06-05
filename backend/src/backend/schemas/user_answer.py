@@ -2,25 +2,19 @@
 from typing import Optional, Any, List
 from uuid import UUID
 from datetime import date, datetime
-from backend.schemas import CamelModel
+from backend.schemas import CamelModel, BaseSchema
 
-class CommentRead(CamelModel):
-    id: UUID
+class CommentRead(BaseSchema, CamelModel):
     answer_id: UUID
     user_id: UUID
     comment: str
-    created_at: Optional[datetime]
-    updated_at: Optional[datetime]
-    created_by: Optional[UUID]
-    updated_by: Optional[UUID]
 
-class CommentCreate(CamelModel):
+class CommentCreate(BaseSchema, CamelModel):
     answer_id: UUID
     comment: str
 
 
-class UserAnswerRead(CamelModel):
-    id: UUID
+class UserAnswerRead(BaseSchema, CamelModel):
     user_id: UUID
     question_id: UUID
     timetable_id: UUID
@@ -29,12 +23,8 @@ class UserAnswerRead(CamelModel):
     answer: Optional[Any]
     is_submitted: bool
     comments: List[CommentRead]
-    created_at: Optional[datetime]
-    updated_at: Optional[datetime]
-    created_by: Optional[UUID]
-    updated_by: Optional[UUID]
 
-class UserAnswerCreate(CamelModel):
+class UserAnswerCreate(BaseSchema, CamelModel):
     question_id: UUID
     timetable_id: UUID
     day_of_plan: int

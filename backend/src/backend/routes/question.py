@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.db import get_async_session
 from backend.db.models.question import Question, QuestionGroup
-from backend.schemas.question import QuestionCreate, QuestionGroupCreate, QuestionGroupRead, QuestionGroupUpdate, QuestionRead
+from backend.schemas.question import QuestionCreate, QuestionGroupCreate, QuestionGroupRead, QuestionRead
 from backend.db.models.question import QuestionTag
 from backend.schemas.question import QuestionTagRead, QuestionTagCreate
 from backend.routes import CustomSQLAlchemyCRUDRouter
@@ -46,9 +46,9 @@ question_tag_router = CustomSQLAlchemyCRUDRouter(
 question_group_router = CustomSQLAlchemyCRUDRouter(
     schema=QuestionGroupRead,
     create_schema=QuestionGroupCreate,
-    update_schema=QuestionGroupUpdate,
     db_model=QuestionGroup,
-    db=get_async_session,
+    db=get_async_session,    
+    current_user_dependency=current_active_user,
     prefix='question-groups',
     tags=['Question Groups'],
     get_all_route=[Depends(current_active_user)],

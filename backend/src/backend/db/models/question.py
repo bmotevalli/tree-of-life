@@ -11,11 +11,11 @@ question_tag_association = Table(
     "question_tag_association",
     Base.metadata,
     Column("question_id", UUID(as_uuid=True), ForeignKey("question.id")),
-    Column("tag_id", UUID(as_uuid=True), ForeignKey("questiontag.id"))
+    Column("tag_id", UUID(as_uuid=True), ForeignKey("question_tag.id"))
 )
 
 class QuestionTag(BaseModel):
-    __tablename__ = "questiontag"
+    __tablename__ = "question_tag"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     name = Column(String, unique=True, nullable=False)
 

@@ -4,7 +4,7 @@ from pydantic import Field
 from uuid import UUID
 from backend.enums.user import Role
 from datetime import datetime
-from backend.schemas import CamelModel
+from backend.schemas import CamelModel, BaseSchema
 
 class UserRead(schemas.BaseUser[UUID]):
     role: Role
@@ -16,15 +16,10 @@ class UserUpdate(schemas.BaseUserUpdate):
     role: Role | None = None
 
 
-class CoachRead(CamelModel):
-    id: UUID
+class CoachRead(BaseSchema, CamelModel):
     user_id: UUID
     coach_id: UUID
-    created_at: Optional[datetime]
-    updated_at: Optional[datetime]
-    created_by: Optional[UUID]
-    updated_by: Optional[UUID]
 
-class CoachCreate(CamelModel):
+class CoachCreate(CoachRead):
     user_id: UUID
     coach_id: UUID
