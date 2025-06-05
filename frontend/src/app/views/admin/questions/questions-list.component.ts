@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule, Router } from '@angular/router';
+import { QuestionService } from '../../../services/question.service';
 import { Question } from '../../../interfaces/question.interface';
 
 @Component({
@@ -61,12 +62,25 @@ import { Question } from '../../../interfaces/question.interface';
     }
   `,
 })
-export class QuestionsListComponent {
+export class QuestionsListComponent implements OnInit {
   private router = inject(Router);
 
   questions: Question[] = []; // TODO: Populate from backend
   columns: string[] = ['prompt', 'type', 'tags', 'actions'];
+  questionService = inject(QuestionService);
 
+  ngOnInit() {
+    this.loadQuestions();
+  }
+
+  // API Calls
+  loadQuestions() {
+    this.questionService.getQuestions().subscribe((questions) => {
+      this.questions = questions;
+    });
+  }
+
+  // Event Handlers
   onCreate() {
     this.router.navigate(['/admin/questions/create']);
   }

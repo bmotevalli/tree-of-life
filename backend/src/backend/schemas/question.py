@@ -1,6 +1,7 @@
 from typing import Optional, Any, List
 from uuid import UUID
 from datetime import datetime
+from pydantic import ConfigDict
 from backend.schemas import CamelModel
 from backend.enums.question import QuestionType
 
@@ -35,3 +36,23 @@ class QuestionCreate(CamelModel):
     tag_ids: Optional[List[UUID]] = None
 
 
+
+
+class QuestionGroupBase(CamelModel):
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+    name: str
+    description: Optional[str] = None
+
+class QuestionGroupCreate(QuestionGroupBase):
+    pass
+
+class QuestionGroupUpdate(QuestionGroupBase):
+    pass
+
+class QuestionGroupRead(QuestionGroupBase):
+    id: UUID
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
+    created_by: Optional[UUID]
+    updated_by: Optional[UUID]

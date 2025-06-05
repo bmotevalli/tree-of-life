@@ -12,7 +12,10 @@ import { TokenForApi } from '../../interfaces/user.interface';
 export class AuthInterceptor implements HttpInterceptor {
   private includeTokenForRoutes: TokenForApi[] = [
     { prefix: 'auth', methods: ['*'] },
-    { prefix: 'reports/admin', methods: ['GET', 'POST'] },
+    { prefix: 'questions', methods: ['*'] },
+    { prefix: 'question-groups', methods: ['*'] },
+    { prefix: 'user-answers', methods: ['*'] },
+    { prefix: 'comments', methods: ['*'] },
   ];
 
   private baseApiUrl = (window as any)['env']?.baseApiUrl || '';

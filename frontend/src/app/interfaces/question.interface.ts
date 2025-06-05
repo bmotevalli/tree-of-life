@@ -14,3 +14,13 @@ export interface Question {
   meta?: any; // For slider config, etc.
   tags?: string[];
 }
+
+export interface QuestionGroup {
+  id: string;
+  name: string;
+  description?: string;
+  // createdAt?: Date;
+  // updatedAt?: Date;
+  // createdBy?: string;
+  // updatedBy?: string;
+}

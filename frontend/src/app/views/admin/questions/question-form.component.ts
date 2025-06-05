@@ -15,7 +15,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 
-import { QuestionType } from '../../../interfaces/question.interface';
+import { QuestionService } from '../../../services/question.service';
+import { QuestionGroupService } from '../../../services/question-group.service';
+import { QuestionGroup } from '../../../interfaces/question.interface';
+import { QuestionGroupDialogButtonComponent } from './question-group-dialog.component';
 
 @Component({
   selector: 'app-question-form',
@@ -30,6 +33,7 @@ import { QuestionType } from '../../../interfaces/question.interface';
     MatIconModule,
     MatCardModule,
     RouterModule,
+    QuestionGroupDialogButtonComponent,
   ],
   template: `
     <div class="flex justify-center mt-10">
@@ -105,6 +109,19 @@ import { QuestionType } from '../../../interfaces/question.interface';
           </div>
           }
 
+          <!-- Group -->
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>گروه سوال</mat-label>
+            <mat-select formControlName="groupId">
+              <mat-option [value]="null">بدون گروه</mat-option>
+              @for (group of questionGroups; track group.id) {
+              <mat-option [value]="group.id">{{ group.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <app-question-group-dialog-button></app-question-group-dialog-button>
+
           <div class="mt-6 flex justify-end">
             <button mat-raised-button color="primary" type="submit">
               {{ isEditMode ? 'بروزرسانی' : 'ایجاد' }} تمرین
@@ -119,8 +136,11 @@ export class QuestionFormComponent {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private questionService = inject(QuestionService);
+  private questionGroupService = inject(QuestionGroupService);
 
   questionForm!: FormGroup;
+  questionGroups: QuestionGroup[] = [];
   questionTypes: { [key: string]: string }[] = [
     { value: 'short_text', label: 'متن کوتاه' },
     { value: 'long_text', label: 'متن بلند' },
@@ -174,13 +194,40 @@ export class QuestionFormComponent {
     // TODO: Load question from backend and patchValue
   }
 
+  loadQuestionGroups() {
+    this.questionGroupService.getAll().subscribe({
+      next: (groups) => (this.questionGroups = groups),
+      error: (err) => console.error('Error loading groups:', err),
+    });
+  }
+
+  openCreateGroupDialog() {
+    // You can use MatDialog or any other modal here.
+    // For now, let's use a prompt as a placeholder.
+    const name = prompt('نام گروه را وارد کنید:');
+    if (name) {
+      this.questionGroupService.create({ name }).subscribe({
+        next: () => this.loadQuestionGroups(), // Refresh the dropdown!
+        error: (err) => console.error('Error creating group:', err),
+      });
+    }
+  }
+
   onSubmit() {
     if (this.questionForm.invalid) return;
     const data = this.questionForm.value;
+    console.log('Submitting question data:', data);
     if (this.isEditMode) {
       // TODO: Call update API
     } else {
-      // TODO: Call create API
+      this.questionService.createQuestion(data).subscribe({
+        next: () => {
+          this.router.navigate(['/admin/questions']);
+        },
+        error: (err) => {
+          console.error('Error creating question:', err);
+        },
+      });
     }
   }
 }

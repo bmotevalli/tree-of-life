@@ -12,6 +12,7 @@ user_timetable_router = CustomSQLAlchemyCRUDRouter(
     db_model=UserTimeTable,
     db=get_async_session,
     current_user_dependency=current_active_user,
+    prefix='user-timetables',
     tags=["UserTimeTables"],
     get_all_route=[Depends(current_active_user)],
     get_one_route=[Depends(current_active_user)],
