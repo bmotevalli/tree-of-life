@@ -11,23 +11,21 @@ class QuestionTagRead(BaseSchema, CamelModel):
 class QuestionTagCreate(QuestionTagRead):
     pass
 
-class QuestionRead(BaseSchema, CamelModel):
+
+class QuestionBase(BaseSchema, CamelModel):
     prompt: str
     type: QuestionType
+    title: Optional[str] = None
     options: Optional[Any]
     meta: Optional[Any]
     group_id: Optional[UUID] = None
     example_answer: Optional[str] = None
+
+class QuestionRead(QuestionBase):
     tags: List[QuestionTagRead]
 
-class QuestionCreate(BaseSchema, CamelModel):
-    prompt: str
-    type: QuestionType
-    options: Optional[Any]
-    meta: Optional[Any]
-    group_id: Optional[UUID] = None
-    example_answer: Optional[str] = None
-    tag_ids: Optional[List[UUID]] = None
+class QuestionCreate(QuestionBase):
+    pass
 
 
 

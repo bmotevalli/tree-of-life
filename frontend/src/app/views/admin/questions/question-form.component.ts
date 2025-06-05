@@ -39,8 +39,26 @@ import { QuestionGroupDialogButtonComponent } from './question-group-dialog.comp
     <div class="flex justify-center mt-10">
       <mat-card class="bg-white !bg-white shadow-lg w-full max-w-xl p-6">
         <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
+          <!-- Group -->
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>گروه تمرین (اختیاری)</mat-label>
+            <mat-select formControlName="groupId">
+              <mat-option
+                ><app-question-group-dialog-button></app-question-group-dialog-button
+              ></mat-option>
+              <mat-option value="">بدون گروه</mat-option>
+              @for (group of questionGroups; track group.id) {
+              <mat-option [value]="group.id">{{ group.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
           <mat-form-field class="w-full" appearance="outline">
-            <mat-label>متن</mat-label>
+            <mat-label>عنوان تمرین (اختیاری)</mat-label>
+            <input matInput formControlName="title" />
+          </mat-form-field>
+
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>متن تمرین</mat-label>
             <textarea
               matInput
               formControlName="prompt"
@@ -88,8 +106,19 @@ import { QuestionGroupDialogButtonComponent } from './question-group-dialog.comp
               افزودن گزینه
             </button>
           </div>
-          } @if (questionForm.get('type')?.value === 'slider') {
-          <div formGroupName="meta" class="grid grid-cols-2 gap-4">
+          }
+
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>نمونه پاسخ (اختیاری)</mat-label>
+            <textarea
+              matInput
+              formControlName="exampleAnswer"
+              rows="4"
+            ></textarea>
+          </mat-form-field>
+
+          @if (questionForm.get('type')?.value === 'slider') {
+          <div [formGroup]="sliderMetaForm" class="grid grid-cols-2 gap-4">
             <mat-form-field class="flex-1" appearance="outline">
               <mat-label>حداقل</mat-label>
               <input matInput type="number" formControlName="min" required />
@@ -107,20 +136,17 @@ import { QuestionGroupDialogButtonComponent } from './question-group-dialog.comp
               <input matInput formControlName="endLabel" />
             </mat-form-field>
           </div>
-          }
-
-          <!-- Group -->
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>گروه سوال</mat-label>
-            <mat-select formControlName="groupId">
-              <mat-option [value]="null">بدون گروه</mat-option>
-              @for (group of questionGroups; track group.id) {
-              <mat-option [value]="group.id">{{ group.name }}</mat-option>
-              }
-            </mat-select>
+          } @else {
+          <mat-form-field class="w-full mt-2" appearance="outline">
+            <mat-label>تنظیمات اضافی (اختیاری)</mat-label>
+            <textarea
+              matInput
+              formControlName="meta"
+              rows="4"
+              [attr.placeholder]="metaPlaceholder"
+            ></textarea>
           </mat-form-field>
-
-          <app-question-group-dialog-button></app-question-group-dialog-button>
+          }
 
           <div class="mt-6 flex justify-end">
             <button mat-raised-button color="primary" type="submit">
@@ -140,6 +166,7 @@ export class QuestionFormComponent {
   private questionGroupService = inject(QuestionGroupService);
 
   questionForm!: FormGroup;
+  sliderMetaForm!: FormGroup;
   questionGroups: QuestionGroup[] = [];
   questionTypes: { [key: string]: string }[] = [
     { value: 'short_text', label: 'متن کوتاه' },
@@ -161,25 +188,37 @@ export class QuestionFormComponent {
     if (this.isEditMode) {
       this.loadQuestion(this.questionId!);
     }
+    this.loadQuestionGroups();
   }
 
   initForm() {
     this.questionForm = this.fb.group({
+      title: [''],
       prompt: ['', Validators.required],
       type: ['', Validators.required],
       options: this.fb.array([]),
-      meta: this.fb.group({
-        min: [],
-        max: [],
-        startLabel: [],
-        endLabel: [],
-      }),
+      meta: [''],
+      groupId: [null],
+      exampleAnswer: [''],
       tagIds: this.fb.array([]),
+    });
+
+    this.sliderMetaForm = this.fb.group({
+      min: [null],
+      max: [null],
+      startLabel: [''],
+      endLabel: [''],
     });
   }
 
   get options() {
     return this.questionForm.get('options') as FormArray;
+  }
+
+  get metaPlaceholder(): string {
+    return this.questionForm.get('type')?.value === 'slider'
+      ? '{ "min": 0, "max": 100, "startLabel": "تاریکی", "endLabel": "نور" }'
+      : 'به فرم Json وارد کنید';
   }
 
   addOption() {
@@ -201,22 +240,30 @@ export class QuestionFormComponent {
     });
   }
 
-  openCreateGroupDialog() {
-    // You can use MatDialog or any other modal here.
-    // For now, let's use a prompt as a placeholder.
-    const name = prompt('نام گروه را وارد کنید:');
-    if (name) {
-      this.questionGroupService.create({ name }).subscribe({
-        next: () => this.loadQuestionGroups(), // Refresh the dropdown!
-        error: (err) => console.error('Error creating group:', err),
-      });
-    }
-  }
-
   onSubmit() {
     if (this.questionForm.invalid) return;
-    const data = this.questionForm.value;
+
+    const formValue = this.questionForm.value;
+    let parsedMeta: any = null;
+
+    if (formValue.type === 'slider') {
+      parsedMeta = this.sliderMetaForm.value;
+    } else if (formValue.meta) {
+      try {
+        parsedMeta = JSON.parse(formValue.meta);
+      } catch (e) {
+        alert('تنظیمات اضافی وارد شده JSON معتبری نیست.');
+        return;
+      }
+    }
+
+    const data = {
+      ...formValue,
+      meta: parsedMeta,
+    };
+
     console.log('Submitting question data:', data);
+
     if (this.isEditMode) {
       // TODO: Call update API
     } else {

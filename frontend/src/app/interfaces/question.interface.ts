@@ -8,6 +8,8 @@ export type QuestionType =
   | 'slider';
 
 export interface Question {
+  id?: string;
+  title?: string;
   prompt: string;
   type: QuestionType;
   options?: string[]; // For multiple choice
@@ -16,7 +18,7 @@ export interface Question {
 }
 
 export interface QuestionGroup {
-  id: string;
+  id?: string;
   name: string;
   description?: string;
   // createdAt?: Date;

@@ -25,7 +25,12 @@ import { QuestionGroup } from '../../../interfaces/question.interface';
   selector: 'app-question-group-dialog-button',
   standalone: true,
   template: `
-    <button mat-stroked-button color="primary" (click)="openDialog()">
+    <button
+      mat-stroked-button
+      class="w-full"
+      color="primary"
+      (click)="openDialog()"
+    >
       {{ label }}
     </button>
 

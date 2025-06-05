@@ -33,6 +33,7 @@ class Question(BaseModel):
     __tablename__ = "question"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     prompt = Column(String, nullable=False)
+    title = Column(String, nullable=True)
     type = Column(Enum(QuestionType), nullable=False)
     options = Column(JSON, nullable=True)  # For choice-type questions
     example_answer = Column(String, nullable=True)  # Example answer for guidance
@@ -42,4 +43,4 @@ class Question(BaseModel):
     group_id = Column(UUID(as_uuid=True), ForeignKey("question_group.id"), nullable=True)
     group = relationship("QuestionGroup", back_populates="questions")
 
-    tags = relationship("QuestionTag", secondary=question_tag_association, back_populates="questions")
+    tags = relationship("QuestionTag", secondary=question_tag_association, back_populates="questions", lazy="selectin")
