@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -13,12 +13,23 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatChipsModule } from '@angular/material/chips';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 
-import { QuestionService } from '../../../services/question.service';
-import { QuestionGroupService } from '../../../services/question-group.service';
+import {
+  CrudBaseService,
+  CrudServiceFactory,
+} from '../../../services/crud-base.service';
+import { QuestionTagAssociationService } from '../../../services/question-tag-associate.service';
+import { Question } from '../../../interfaces/question.interface';
 import { QuestionGroup } from '../../../interfaces/question.interface';
+import { QuestionTag } from '../../../interfaces/question.interface';
+import { QuestionTagAssociation } from '../../../interfaces/question.interface';
+
 import { QuestionGroupDialogButtonComponent } from './question-group-dialog.component';
+import { QuestionTagsDialogButtonComponent } from './question-tags-dialog.component';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-question-form',
@@ -33,7 +44,10 @@ import { QuestionGroupDialogButtonComponent } from './question-group-dialog.comp
     MatIconModule,
     MatCardModule,
     RouterModule,
+    MatAutocompleteModule,
+    MatChipsModule,
     QuestionGroupDialogButtonComponent,
+    QuestionTagsDialogButtonComponent,
   ],
   template: `
     <div class="flex justify-center mt-10">
@@ -118,7 +132,7 @@ import { QuestionGroupDialogButtonComponent } from './question-group-dialog.comp
           </mat-form-field>
 
           @if (questionForm.get('type')?.value === 'slider') {
-          <div [formGroup]="sliderMetaForm" class="grid grid-cols-2 gap-4">
+          <div formGroupName="sliderMetaForm" class="grid grid-cols-2 gap-4">
             <mat-form-field class="flex-1" appearance="outline">
               <mat-label>حداقل</mat-label>
               <input matInput type="number" formControlName="min" required />
@@ -148,9 +162,29 @@ import { QuestionGroupDialogButtonComponent } from './question-group-dialog.comp
           </mat-form-field>
           }
 
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>برچسب‌ها</mat-label>
+            <mat-select formControlName="tags" multiple>
+              @for (tag of tags; track tag.id) {
+              <mat-option [value]="tag.id">{{ tag.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <app-question-tags-dialog-button></app-question-tags-dialog-button>
+
           <div class="mt-6 flex justify-end">
             <button mat-raised-button color="primary" type="submit">
               {{ isEditMode ? 'بروزرسانی' : 'ایجاد' }} تمرین
+            </button>
+
+            <button
+              mat-raised-button
+              color="secondary"
+              type="button"
+              (click)="router.navigate(['/admin/questions'])"
+              class="ml-2"
+            >
+              بازگشت
             </button>
           </div>
         </form>
@@ -161,13 +195,15 @@ import { QuestionGroupDialogButtonComponent } from './question-group-dialog.comp
 export class QuestionFormComponent {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private questionService = inject(QuestionService);
-  private questionGroupService = inject(QuestionGroupService);
+  router = inject(Router);
+  private questionService: CrudBaseService<Question>;
+  private questionGroupService: CrudBaseService<QuestionGroup>;
+  private questionTagsService: CrudBaseService<QuestionTag>;
+  private questionTagAssociationService = inject(QuestionTagAssociationService);
 
   questionForm!: FormGroup;
-  sliderMetaForm!: FormGroup;
   questionGroups: QuestionGroup[] = [];
+  tags: QuestionTag[] = [];
   questionTypes: { [key: string]: string }[] = [
     { value: 'short_text', label: 'متن کوتاه' },
     { value: 'long_text', label: 'متن بلند' },
@@ -181,6 +217,24 @@ export class QuestionFormComponent {
   isEditMode = false;
   questionId: string | null = null;
 
+  // searchTag = signal<string | null>('');
+
+  // filteredTags() {
+  //   const search = this.searchTag()?.toLowerCase();
+  //   if (!search) {
+  //     return this.tags;
+  //   }
+  //   return this.tags.filter((tag) => tag.name.toLowerCase().includes(search));
+  // }
+
+  constructor(private crudFactory: CrudServiceFactory) {
+    this.questionService = this.crudFactory.create<Question>('questions');
+    this.questionGroupService =
+      this.crudFactory.create<QuestionGroup>('question-groups');
+    this.questionTagsService =
+      this.crudFactory.create<QuestionTag>('question-tags');
+  }
+
   ngOnInit() {
     this.questionId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.questionId;
@@ -189,6 +243,7 @@ export class QuestionFormComponent {
       this.loadQuestion(this.questionId!);
     }
     this.loadQuestionGroups();
+    this.loadTags();
   }
 
   initForm() {
@@ -200,14 +255,13 @@ export class QuestionFormComponent {
       meta: [''],
       groupId: [null],
       exampleAnswer: [''],
-      tagIds: this.fb.array([]),
-    });
-
-    this.sliderMetaForm = this.fb.group({
-      min: [null],
-      max: [null],
-      startLabel: [''],
-      endLabel: [''],
+      tags: this.fb.control([]),
+      sliderMetaForm: this.fb.group({
+        min: [null],
+        max: [null],
+        startLabel: [''],
+        endLabel: [''],
+      }),
     });
   }
 
@@ -230,7 +284,42 @@ export class QuestionFormComponent {
   }
 
   loadQuestion(id: string) {
-    // TODO: Load question from backend and patchValue
+    this.questionService.getById(id).subscribe({
+      next: (question: Question) => {
+        this.questionForm.patchValue({
+          title: question.title || '',
+          prompt: question.prompt,
+          type: question.type,
+          options: question.options || [],
+          meta: question.meta || '',
+          groupId: question.groupId || null,
+          exampleAnswer: question.exampleAnswer || '',
+        });
+
+        // Set slider meta if type is slider
+        if (question.type === 'slider' && question.meta) {
+          this.questionForm.setControl(
+            'sliderMetaForm',
+            this.fb.group({
+              min: [question.meta.min || null, Validators.required],
+              max: [question.meta.max || null, Validators.required],
+              startLabel: [question.meta.startLabel || ''],
+              endLabel: [question.meta.endLabel || ''],
+            })
+          );
+        }
+
+        // Set tags
+        const tagsControl = this.questionForm.get('tags');
+        if (tagsControl && question.tags) {
+          tagsControl.setValue(question.tags);
+        }
+      },
+      error: (err: any) => {
+        console.error('Error loading question:', err);
+        alert('خطا در بارگذاری تمرین. لطفاً دوباره تلاش کنید.');
+      },
+    });
   }
 
   loadQuestionGroups() {
@@ -240,6 +329,20 @@ export class QuestionFormComponent {
     });
   }
 
+  loadTags() {
+    this.questionTagsService.getAll().subscribe({
+      next: (tags) => (this.tags = tags),
+      error: (err) => console.error('Error loading tags:', err),
+    });
+  }
+
+  // EVENTS
+
+  // onSearchInput(event: Event) {
+  //   const target = event.target as HTMLInputElement;
+  //   this.searchTag.set(target.value);
+  // }
+
   onSubmit() {
     if (this.questionForm.invalid) return;
 
@@ -247,7 +350,7 @@ export class QuestionFormComponent {
     let parsedMeta: any = null;
 
     if (formValue.type === 'slider') {
-      parsedMeta = this.sliderMetaForm.value;
+      parsedMeta = this.questionForm.get('sliderMetaForm')?.value;
     } else if (formValue.meta) {
       try {
         parsedMeta = JSON.parse(formValue.meta);
@@ -262,14 +365,59 @@ export class QuestionFormComponent {
       meta: parsedMeta,
     };
 
-    console.log('Submitting question data:', data);
+    const { tags, sliderMetaForm, ...questionData } = data;
+
+    console.log('Question data to send:', questionData);
+    console.log('Selected tags:', tags);
+    console.log('Question Id:', this.questionId!);
 
     if (this.isEditMode) {
       // TODO: Call update API
+      this.questionService.update(this.questionId!, data).subscribe({
+        next: (updatedQuestion) => {
+          this.questionTagAssociationService
+            .deleteByQuestionId(this.questionId!)
+            .subscribe({
+              next: () => {
+                const tagRequests = tags.map((tagId: string) =>
+                  this.questionTagAssociationService.create({
+                    questionId: this.questionId!,
+                    tagId,
+                  })
+                );
+                forkJoin(tagRequests).subscribe({
+                  next: () => {
+                    this.router.navigate(['/admin/questions']);
+                  },
+                  error: (err) => console.error('Error updating tags:', err),
+                });
+              },
+              error: (err) => console.error('Error deleting tags:', err),
+            });
+        },
+        error: (err) => console.error('Error updating question:', err),
+      });
     } else {
-      this.questionService.createQuestion(data).subscribe({
-        next: () => {
-          this.router.navigate(['/admin/questions']);
+      this.questionService.create(data).subscribe({
+        next: (createdQuestion) => {
+          const questionId = createdQuestion.id;
+
+          const tagRequests = tags.map((tagId: string) =>
+            this.questionTagAssociationService.create({
+              questionId,
+              tagId,
+            })
+          );
+
+          forkJoin(tagRequests).subscribe({
+            next: () => {
+              console.log('Tags created successfully.');
+              this.router.navigate(['/admin/questions']);
+            },
+            error: (err: any) => {
+              console.error('Error creating tags:', err);
+            },
+          });
         },
         error: (err) => {
           console.error('Error creating question:', err);

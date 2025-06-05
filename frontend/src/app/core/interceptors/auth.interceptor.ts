@@ -14,6 +14,8 @@ export class AuthInterceptor implements HttpInterceptor {
     { prefix: 'auth', methods: ['*'] },
     { prefix: 'questions', methods: ['*'] },
     { prefix: 'question-groups', methods: ['*'] },
+    { prefix: 'question-tags', methods: ['*'] },
+    { prefix: 'question-tag-associations', methods: ['*'] },
     { prefix: 'user-answers', methods: ['*'] },
     { prefix: 'comments', methods: ['*'] },
   ];

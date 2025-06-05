@@ -22,10 +22,11 @@ import {
   CrudBaseService,
   CrudServiceFactory,
 } from '../../../services/crud-base.service';
-import { QuestionGroup } from '../../../interfaces/question.interface';
+
+import { QuestionTag } from '../../../interfaces/question.interface';
 
 @Component({
-  selector: 'app-question-group-dialog-button',
+  selector: 'app-question-tags-dialog-button',
   standalone: true,
   template: `
     <button
@@ -39,23 +40,14 @@ import { QuestionGroup } from '../../../interfaces/question.interface';
 
     <ng-template #dialogTemplate>
       <h2 mat-dialog-title>
-        {{ group ? 'ویرایش گروه' : 'ایجاد گروه جدید' }}
+        {{ tag ? 'ویرایش کلید واژه' : 'ایجاد برچسب جدید' }}
       </h2>
 
       <mat-dialog-content>
         <form [formGroup]="form">
           <mat-form-field appearance="outline" class="w-full">
-            <mat-label>نام گروه</mat-label>
+            <mat-label>برچسب</mat-label>
             <input matInput formControlName="name" required />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>توضیحات (اختیاری)</mat-label>
-            <textarea
-              matInput
-              formControlName="description"
-              rows="3"
-            ></textarea>
           </mat-form-field>
         </form>
       </mat-dialog-content>
@@ -81,13 +73,13 @@ import { QuestionGroup } from '../../../interfaces/question.interface';
     MatFormFieldModule,
   ],
 })
-export class QuestionGroupDialogButtonComponent {
+export class QuestionTagsDialogButtonComponent {
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
-  private questionGroupService: CrudBaseService<QuestionGroup>;
+  private questionTagsService: CrudBaseService<QuestionTag>;
 
-  @Input() group?: QuestionGroup;
-  @Input() label: string = 'افزودن گروه جدید';
+  @Input() tag?: QuestionTag;
+  @Input() label: string = 'افزودن برچسب جدید';
 
   form: FormGroup = this.fb.group({
     name: ['', Validators.required],
@@ -98,15 +90,15 @@ export class QuestionGroupDialogButtonComponent {
   @ViewChild('dialogTemplate') dialogTemplate!: TemplateRef<any>;
 
   constructor(private crudFactory: CrudServiceFactory) {
-    this.questionGroupService =
-      this.crudFactory.create<QuestionGroup>('question-groups');
+    this.questionTagsService =
+      this.crudFactory.create<QuestionTag>('question-tags');
   }
+
   openDialog() {
     // If editing, prepopulate the form
-    if (this.group) {
+    if (this.tag) {
       this.form.patchValue({
-        name: this.group.name,
-        description: this.group.description,
+        name: this.tag.name,
       });
     } else {
       this.form.reset();
@@ -118,23 +110,23 @@ export class QuestionGroupDialogButtonComponent {
   }
 
   save() {
-    const groupData = this.form.value;
+    const data = this.form.value;
 
-    if (this.group?.id) {
+    if (this.tag?.id) {
       // Update
-      this.questionGroupService.update(this.group.id, groupData).subscribe({
+      this.questionTagsService.update(this.tag.id, data).subscribe({
         next: (updated) => {
           this.dialogRef.close(updated);
         },
-        error: (err) => console.error('Error updating group:', err),
+        error: (err) => console.error('Error updating tag:', err),
       });
     } else {
       // Create
-      this.questionGroupService.create(groupData).subscribe({
+      this.questionTagsService.create(data).subscribe({
         next: (created) => {
           this.dialogRef.close(created);
         },
-        error: (err) => console.error('Error creating group:', err),
+        error: (err) => console.error('Error creating tag:', err),
       });
     }
   }

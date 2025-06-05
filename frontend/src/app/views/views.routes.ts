@@ -31,6 +31,7 @@ export const viewRoutes: Routes = [
         children: [
           {
             path: '',
+            canActivate: [AuthGuard, AdminGuard],
             loadComponent: () =>
               import('./admin/questions/questions-list.component').then(
                 (m) => m.QuestionsListComponent
@@ -38,6 +39,15 @@ export const viewRoutes: Routes = [
           },
           {
             path: 'create',
+            canActivate: [AuthGuard, AdminGuard],
+            loadComponent: () =>
+              import('./admin/questions/question-form.component').then(
+                (m) => m.QuestionFormComponent
+              ),
+          },
+          {
+            path: ':id/edit',
+            canActivate: [AuthGuard, AdminGuard],
             loadComponent: () =>
               import('./admin/questions/question-form.component').then(
                 (m) => m.QuestionFormComponent

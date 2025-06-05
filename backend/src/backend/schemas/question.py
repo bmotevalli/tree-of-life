@@ -12,27 +12,44 @@ class QuestionTagCreate(QuestionTagRead):
     pass
 
 
-class QuestionBase(BaseSchema, CamelModel):
-    prompt: str
-    type: QuestionType
-    title: Optional[str] = None
-    options: Optional[Any]
-    meta: Optional[Any]
-    group_id: Optional[UUID] = None
-    example_answer: Optional[str] = None
-
-class QuestionRead(QuestionBase):
-    tags: List[QuestionTagRead]
-
-class QuestionCreate(QuestionBase):
-    pass
-
-
-
-
 class QuestionGroupRead(BaseSchema, CamelModel):
     name: str
     description: Optional[str] = None
 
 class QuestionGroupCreate(QuestionGroupRead):
     pass
+
+class QuestionBase(BaseSchema, CamelModel):
+    prompt: str
+    type: QuestionType
+    title: Optional[str] = None
+    options: Optional[Any]
+    meta: Optional[Any]
+    example_answer: Optional[str] = None
+
+
+class QuestionRead(QuestionBase):
+    group_name: Optional[str]
+    tags: List[QuestionTagRead] = []
+
+    class Config:
+        orm_mode = True
+
+class QuestionCreate(QuestionBase):
+    group_id: Optional[UUID] = None
+
+
+
+
+class QuestionTagAssociationBase(CamelModel):
+    question_id: UUID
+    tag_id: UUID
+# For creating a new association:
+class QuestionTagAssociationCreate(QuestionTagAssociationBase):
+    pass
+
+# For reading an association:
+class QuestionTagAssociationRead(QuestionTagAssociationBase):
+    class Config:
+        orm_mode = True
+

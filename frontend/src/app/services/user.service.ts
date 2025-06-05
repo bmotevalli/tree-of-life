@@ -1,14 +1,21 @@
 // src/app/services/user.service.ts
-import { Injectable } from '@angular/core';
-import { HttpParams } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { HttpParams, HttpClient } from '@angular/common/http';
 import { User } from '../interfaces/user.interface';
 import { Observable } from 'rxjs';
-import { BaseService } from './base.service';
+import { CrudBaseService } from './crud-base.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class UserService extends BaseService {
+export class UserService {
+  private baseUrl: string;
+  private http = inject(HttpClient);
+
+  constructor() {
+    this.baseUrl = (window as any)['env']?.baseApiUrl ?? '';
+  }
+
   login(email: string, password: string) {
     const body = new HttpParams()
       .set('username', email)
