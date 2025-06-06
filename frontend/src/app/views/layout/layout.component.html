@@ -1,10 +1,18 @@
 <mat-toolbar color="primary">
   <!-- Sidebar Toggle -->
-  @if (activeNavItem()?.sideNavItems?.length) {
+  <!-- @if (activeNavItem()?.sideNavItems?.length) {
   <button mat-icon-button (click)="sidebarOpen.set(!sidebarOpen())">
     <mat-icon>menu</mat-icon>
   </button>
-  }
+  } -->
+
+  <button
+    [disabled]="activeNavItem()?.sideNavItems?.length === 0"
+    mat-icon-button
+    (click)="sidebarOpen.set(!sidebarOpen())"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
 
   <!-- Desktop Nav Items -->
   <div class="hidden md:flex gap-6 items-center justify-center w-full">
@@ -52,7 +60,7 @@
     </button>
   </div>
 </mat-toolbar>
-<mat-sidenav-container class="h-screen">
+<mat-sidenav-container class="flex flex-col">
   <!-- Sidebar -->
   <mat-sidenav
     #drawer

@@ -80,8 +80,8 @@ export const viewRoutes: Routes = [
         path: 'planing',
         canActivate: [AuthGuard],
         loadComponent: () =>
-          import('./notebook/planing/planing.component').then(
-            (m) => m.PlaningComponent
+          import('./notebook/planning/planning.component').then(
+            (m) => m.PlanningComponent
           ),
       },
       {

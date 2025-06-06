@@ -1,3 +1,5 @@
+/* styles.scss */
+
 @use "@angular/material" as mat;
 
 @use "./styles/fonts.scss" as *;
@@ -28,5 +30,39 @@ html {
 @layer utilities {
   .ltr {
     direction: ltr;
+  }
+}
+
+/* Apply custom button color globally */
+// button,
+// .mat-mdc-button,
+// .mat-mdc-raised-button,
+// .mat-mdc-unelevated-button,
+// .mat-mdc-outlined-button,
+// .mat-mdc-fab,
+// .mat-mdc-mini-fab {
+//   background-color: rgb(195, 131, 255) !important;
+//   color: white !important;
+// }
+
+// /* Optional: If you want hover states */
+// button:hover,
+// .mat-mdc-button:hover,
+// .mat-mdc-raised-button:hover,
+// .mat-mdc-unelevated-button:hover,
+// .mat-mdc-outlined-button:hover,
+// .mat-mdc-fab:hover,
+// .mat-mdc-mini-fab:hover {
+//   background-color: rgba(195, 131, 255, 0.9) !important;
+// }
+
+@layer components {
+  .btn-primary {
+    @apply text-black;
+    background-color: rgb(195, 131, 255) !important;
+  }
+
+  .btn-primary:hover {
+    background-color: rgba(195, 131, 255, 0.9) !important;
   }
 }

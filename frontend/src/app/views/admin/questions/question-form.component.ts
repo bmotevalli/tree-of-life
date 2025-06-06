@@ -212,6 +212,7 @@ export class QuestionFormComponent {
     { value: 'multiple_choice', label: 'انتخاب چندگانه' },
     { value: 'slider', label: 'اسلایدر' },
     { value: 'number', label: 'عدد' },
+    { value: 'count', label: 'بشمار' },
   ];
 
   isEditMode = false;

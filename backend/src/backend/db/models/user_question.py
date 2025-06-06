@@ -21,5 +21,7 @@ class UserTimeTable(BaseModel):
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
     title = Column(String, nullable=True)
+    is_submitted = Column(String, nullable=False, default="false")
+    notes = Column(String, nullable=True, default="")
 
     questions = relationship("QuestionTimeTable", back_populates="timetable", cascade="all, delete-orphan")

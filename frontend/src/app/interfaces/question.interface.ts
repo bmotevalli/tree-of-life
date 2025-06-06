@@ -5,6 +5,7 @@ export type QuestionType =
   | 'single_choice'
   | 'multiple_choice'
   | 'number'
+  | 'count'
   | 'slider';
 
 export interface QuestionTag {
