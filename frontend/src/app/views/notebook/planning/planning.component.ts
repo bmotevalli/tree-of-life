@@ -8,6 +8,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 
+import { AnswerQuestionFormComponent } from '../../admin/questions/questions-answer-form.component';
 import { HorizontalSeparatorComponent } from '../../../core/shared/h-separator.component';
 import { Question } from '../../../interfaces/question.interface';
 import {
@@ -28,6 +29,7 @@ import {
     MatFormFieldModule,
     MatSelectModule,
     HorizontalSeparatorComponent,
+    AnswerQuestionFormComponent,
   ],
   template: `
     <div class="p-6 max-w-4xl mx-auto">
@@ -175,20 +177,9 @@ import {
             <div class="mt-4">
               <h2 class="text-xl font-bold mb-2">برنامه فعلی</h2>
               @if (selectedQuestions.length > 0) {
-              <ul class="list-disc pl-6">
-                @for (question of selectedQuestions; let i = $index; track
-                question.id) {
-                <li class="flex justify-between items-center">
-                  <span>{{ question.prompt }}</span>
-                  <button
-                    (click)="removePractice(i)"
-                    class="text-red-500 hover:underline"
-                  >
-                    حذف
-                  </button>
-                </li>
-                }
-              </ul>
+              <app-answer-question-form
+                [questions]="selectedQuestions"
+              ></app-answer-question-form>
               } @else {
               <p class="text-gray-600">هیچ تمرینی انتخاب نشده است.</p>
               }

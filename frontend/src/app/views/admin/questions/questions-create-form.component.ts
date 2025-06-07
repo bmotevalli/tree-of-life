@@ -27,8 +27,8 @@ import { QuestionGroup } from '../../../interfaces/question.interface';
 import { QuestionTag } from '../../../interfaces/question.interface';
 import { QuestionTagAssociation } from '../../../interfaces/question.interface';
 
-import { QuestionGroupDialogButtonComponent } from './question-group-dialog.component';
-import { QuestionTagsDialogButtonComponent } from './question-tags-dialog.component';
+import { QuestionGroupDialogButtonComponent } from './questions-dialog-group.component';
+import { QuestionTagsDialogButtonComponent } from './questions-dialog-tags.component';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -142,12 +142,12 @@ import { forkJoin } from 'rxjs';
               <input matInput type="number" formControlName="max" required />
             </mat-form-field>
             <mat-form-field class="flex-1" appearance="outline">
-              <mat-label>برچسب ابتدا</mat-label>
-              <input matInput formControlName="startLabel" />
+              <mat-label>برچسب حداقل</mat-label>
+              <input matInput formControlName="minLabel" />
             </mat-form-field>
             <mat-form-field class="flex-1" appearance="outline">
-              <mat-label>برچسب انتها</mat-label>
-              <input matInput formControlName="endLabel" />
+              <mat-label>برچسب حداکثر</mat-label>
+              <input matInput formControlName="maxLabel" />
             </mat-form-field>
           </div>
           } @else {
@@ -211,6 +211,7 @@ export class QuestionFormComponent {
     { value: 'single_choice', label: 'انتخاب تک گزینه‌ای' },
     { value: 'multiple_choice', label: 'انتخاب چندگانه' },
     { value: 'slider', label: 'اسلایدر' },
+    { value: 'tick', label: 'تیک' },
     { value: 'number', label: 'عدد' },
     { value: 'count', label: 'بشمار' },
   ];
@@ -260,8 +261,8 @@ export class QuestionFormComponent {
       sliderMetaForm: this.fb.group({
         min: [null],
         max: [null],
-        startLabel: [''],
-        endLabel: [''],
+        minLabel: [''],
+        maxLabel: [''],
       }),
     });
   }
@@ -272,7 +273,7 @@ export class QuestionFormComponent {
 
   get metaPlaceholder(): string {
     return this.questionForm.get('type')?.value === 'slider'
-      ? '{ "min": 0, "max": 100, "startLabel": "تاریکی", "endLabel": "نور" }'
+      ? '{ "min": 0, "max": 100, "minLabel": "تاریکی", "maxLabel": "نور" }'
       : 'به فرم Json وارد کنید';
   }
 
@@ -304,8 +305,8 @@ export class QuestionFormComponent {
             this.fb.group({
               min: [question.meta.min || null, Validators.required],
               max: [question.meta.max || null, Validators.required],
-              startLabel: [question.meta.startLabel || ''],
-              endLabel: [question.meta.endLabel || ''],
+              minLabel: [question.meta.minLabel || ''],
+              maxLabel: [question.meta.maxLabel || ''],
             })
           );
         }

@@ -8,4 +8,5 @@ class QuestionType(str, Enum):
     MULTIPLE_CHOICE = "multiple_choice"
     NUMBER = "number"
     COUNT = "count"
+    TICK = "tick"
     SLIDER = "slider"
