@@ -77,12 +77,38 @@ export const viewRoutes: Routes = [
           ),
       },
       {
-        path: 'planing',
+        path: 'planning',
         canActivate: [AuthGuard],
         loadComponent: () =>
           import('./notebook/planning/planning.component').then(
             (m) => m.PlanningComponent
           ),
+        children: [
+          {
+            path: '',
+            canActivate: [AuthGuard, AdminGuard],
+            loadComponent: () =>
+              import('./notebook/planning/planning-list.component').then(
+                (m) => m.PlanningListComponent
+              ),
+          },
+          {
+            path: 'create',
+            canActivate: [AuthGuard, AdminGuard],
+            loadComponent: () =>
+              import('./notebook/planning/planning-upsert.component').then(
+                (m) => m.PlanningUpsertComponent
+              ),
+          },
+          {
+            path: ':id/edit',
+            canActivate: [AuthGuard, AdminGuard],
+            loadComponent: () =>
+              import('./notebook/planning/planning-upsert.component').then(
+                (m) => m.PlanningUpsertComponent
+              ),
+          },
+        ],
       },
       {
         path: 'reporting',

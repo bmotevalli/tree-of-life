@@ -67,7 +67,7 @@ export class LayoutComponent {
         {
           icon: 'edit_calendar',
           label: 'برنامه ریزی',
-          route: '/notebook/planing',
+          route: '/notebook/planning',
         },
         {
           icon: 'archive',

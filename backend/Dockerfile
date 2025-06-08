@@ -12,5 +12,6 @@ RUN pip install poetry && \
     poetry config virtualenvs.create false && \
     poetry install --no-interaction
 
+RUN pip install debugpy
 
 ENV PYTHONPATH=/app/src

@@ -18,82 +18,95 @@ import { AnswerTextQuestionComponent } from './questions-type-text.component';
     AnswerChoiceQuestionComponent,
   ],
   template: `
-    <div class="space-y-4">
-      <!-- Render ungrouped questions -->
-      @for (question of ungroupedQuestions(); track question.id) {
-      <div class="bg-gray-50 rounded p-4">
-        <ng-container
-          [ngTemplateOutlet]="renderQuestion"
-          [ngTemplateOutletContext]="{ question: question }"
-        ></ng-container>
-      </div>
-      }
-
-      <!-- Render grouped questions -->
-      @for (group of groupedQuestions(); track group.groupName) {
-      <div class="bg-white shadow rounded p-4 mb-4">
-        <h3 class="text-lg font-semibold mb-2">
-          {{ group.groupName }}
-        </h3>
-        @for (question of group.questions; track question.id) {
-        <div class="bg-gray-50 rounded p-4 mb-2">
+    <div [class.disabled]="isDisabled()">
+      <div class="space-y-4">
+        <!-- Render ungrouped questions -->
+        @for (question of ungroupedQuestions(); track question.id) {
+        <div class="bg-gray-50 rounded p-4">
           <ng-container
             [ngTemplateOutlet]="renderQuestion"
             [ngTemplateOutletContext]="{ question: question }"
           ></ng-container>
         </div>
         }
+
+        <!-- Render grouped questions -->
+        @for (group of groupedQuestions(); track group.groupName) {
+        <div class="bg-white shadow rounded p-4 mb-4">
+          <h3 class="text-lg font-semibold mb-2">
+            {{ group.groupName }}
+          </h3>
+          @for (question of group.questions; track question.id) {
+          <div class="bg-gray-50 rounded p-4 mb-2">
+            <ng-container
+              [ngTemplateOutlet]="renderQuestion"
+              [ngTemplateOutletContext]="{ question: question }"
+            ></ng-container>
+          </div>
+          }
+        </div>
+        }
+      </div>
+
+      @if (!isDisabled()) {
+      <div class="mt-6 flex gap-4">
+        <button
+          type="button"
+          class="c-info px-4 py-2 rounded"
+          (click)="onSave()"
+        >
+          ذخیره
+        </button>
+        <button
+          type="button"
+          class="c-success px-4 py-2 rounded"
+          (click)="onSubmit()"
+        >
+          ارسال
+        </button>
       </div>
       }
-    </div>
 
-    <div class="mt-6 flex gap-4">
-      <button
-        type="button"
-        class="btn-primary px-4 py-2 rounded"
-        (click)="onSave()"
-      >
-        ذخیره
-      </button>
-      <button
-        type="button"
-        class="btn-primary px-4 py-2 rounded"
-        (click)="onSubmit()"
-      >
-        ارسال
-      </button>
+      <!-- Template for rendering a question -->
+      <ng-template #renderQuestion let-question="question">
+        @if (question.type === 'short_text' || question.type === 'long_text') {
+        <app-text-question
+          [question]="question"
+          (answerChanged)="onAnswerChanged(question.id, $event)"
+        ></app-text-question>
+        } @if (question.type === 'slider') {
+        <app-slider-question
+          [question]="question"
+          (answerChanged)="onAnswerChanged(question.id, $event)"
+        ></app-slider-question>
+        } @if (question.type === 'number' || question.type === 'yes_no' ||
+        question.type === 'tick') {
+        <app-single-entry-question
+          [question]="question"
+          (answerChanged)="onAnswerChanged(question.id, $event)"
+        ></app-single-entry-question>
+        } @if (question.type === 'single_choice' || question.type ===
+        'multiple_choice') {
+        <app-choice-question
+          [question]="question"
+          (answerChanged)="onAnswerChanged(question.id, $event)"
+        ></app-choice-question>
+        }
+      </ng-template>
     </div>
-
-    <!-- Template for rendering a question -->
-    <ng-template #renderQuestion let-question="question">
-      @if (question.type === 'short_text' || question.type === 'long_text') {
-      <app-text-question
-        [question]="question"
-        (answerChanged)="onAnswerChanged(question.id, $event)"
-      ></app-text-question>
-      } @if (question.type === 'slider') {
-      <app-slider-question
-        [question]="question"
-        (answerChanged)="onAnswerChanged(question.id, $event)"
-      ></app-slider-question>
-      } @if (question.type === 'number' || question.type === 'yes_no' ||
-      question.type === 'tick') {
-      <app-single-entry-question
-        [question]="question"
-        (answerChanged)="onAnswerChanged(question.id, $event)"
-      ></app-single-entry-question>
-      } @if (question.type === 'single_choice' || question.type ===
-      'multiple_choice') {
-      <app-choice-question
-        [question]="question"
-        (answerChanged)="onAnswerChanged(question.id, $event)"
-      ></app-choice-question>
-      }
-    </ng-template>
   `,
+  styles: [
+    `
+      .disabled {
+        pointer-events: none;
+        opacity: 0.7;
+      }
+    `,
+  ],
 })
 export class AnswerQuestionFormComponent {
   readonly questions = input<Question[] | null>(null);
+  readonly isDisabled = input<boolean>(false);
 
   private _answers = signal<Record<string, any>>({});
 

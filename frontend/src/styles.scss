@@ -57,12 +57,48 @@ html {
 // }
 
 @layer components {
-  .btn-primary {
+  .c-primary {
     @apply text-black;
     background-color: rgb(195, 131, 255) !important;
   }
 
-  .btn-primary:hover {
+  .c-primary:hover {
     background-color: rgba(195, 131, 255, 0.9) !important;
+  }
+
+  .c-success {
+    @apply text-black;
+    background-color: rgb(102, 187, 106) !important; /* greenish */
+  }
+
+  .c-success:hover {
+    background-color: rgba(102, 187, 106, 0.9) !important;
+  }
+
+  .c-info {
+    @apply text-black;
+    background-color: rgb(79, 195, 247) !important; /* blueish */
+  }
+
+  .c-info:hover {
+    background-color: rgba(79, 195, 247, 0.9) !important;
+  }
+
+  .c-warning {
+    @apply text-black;
+    background-color: rgb(255, 202, 40) !important; /* yellowish */
+  }
+
+  .c-warning:hover {
+    background-color: rgba(255, 202, 40, 0.9) !important;
+  }
+
+  .c-error {
+    @apply text-black;
+    background-color: rgb(239, 83, 80) !important; /* reddish */
+  }
+
+  .c-error:hover {
+    background-color: rgba(239, 83, 80, 0.9) !important;
   }
 }

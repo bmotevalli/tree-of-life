@@ -25,7 +25,7 @@ import { Question } from '../../../interfaces/question.interface';
         }
         <mat-slider
           class="flex-grow"
-          showTickMarks
+          discrete
           [min]="question()?.meta?.min || 0"
           [max]="question()?.meta?.max || 10"
           [step]="1"
@@ -56,7 +56,7 @@ import { Question } from '../../../interfaces/question.interface';
           }
           <mat-slider
             class="flex-grow"
-            showTickMarks
+            discrete
             [min]="question()?.meta?.min || 0"
             [max]="question()?.meta?.max || 10"
             [step]="1"

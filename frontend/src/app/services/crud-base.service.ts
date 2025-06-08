@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -12,8 +12,14 @@ export class CrudBaseService<T> {
     this.endpoint = `${this.baseUrl}/${endpoint}`;
   }
 
-  getAll(): Observable<T[]> {
-    return this.http.get<T[]>(this.endpoint);
+  getAll(limit: number | null = null, skip: number = 0): Observable<T[]> {
+    let params = new HttpParams().set('skip', skip.toString());
+
+    if (limit !== null) {
+      params = params.set('limit', limit.toString());
+    }
+
+    return this.http.get<T[]>(this.endpoint, { params });
   }
 
   getById(id: string): Observable<T> {
