@@ -20,6 +20,7 @@ export class AuthInterceptor implements HttpInterceptor {
     { prefix: 'comments', methods: ['*'] },
     { prefix: 'user-timetables', methods: ['*'] },
     { prefix: 'timetable-questions', methods: ['*'] },
+    { prefix: 'user-answers', methods: ['*'] },
   ];
 
   private baseApiUrl = (window as any)['env']?.baseApiUrl || '';

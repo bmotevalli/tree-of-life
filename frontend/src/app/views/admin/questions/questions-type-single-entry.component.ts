@@ -1,4 +1,11 @@
-import { Component, input, output, signal } from '@angular/core';
+import {
+  Component,
+  input,
+  output,
+  signal,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Question } from '../../../interfaces/question.interface';
 
@@ -53,9 +60,11 @@ import { Question } from '../../../interfaces/question.interface';
     </div>
   `,
 })
-export class AnswerSingleEntryQuestionComponent {
+export class AnswerSingleEntryQuestionComponent implements OnChanges {
   readonly question = input<Question | null>(null);
   readonly answerChanged = output<any>();
+
+  initAnswer = input<any | null>(null);
 
   // Signals for answers
   private _numberAnswer = signal<number | null>(null);
@@ -67,7 +76,27 @@ export class AnswerSingleEntryQuestionComponent {
   private _tickAnswer = signal<boolean>(false);
   readonly tickAnswer = this._tickAnswer.asReadonly();
 
-  // Handlers
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['initAnswer']) {
+      const answer = this.initAnswer();
+      if (this.question()?.type === 'number') {
+        this._numberAnswer.set(typeof answer === 'number' ? answer : null);
+      }
+      if (this.question()?.type === 'yes_no') {
+        if (typeof answer === 'boolean') {
+          this._yesNoAnswer.set(answer);
+        } else if (typeof answer === 'string') {
+          this._yesNoAnswer.set(answer === 'true');
+        } else {
+          this._yesNoAnswer.set(null);
+        }
+      }
+      if (this.question()?.type === 'tick') {
+        this._tickAnswer.set(!!answer);
+      }
+    }
+  }
+
   onNumberAnswerChange(event: Event) {
     const value = (event.target as HTMLInputElement).valueAsNumber;
     this._numberAnswer.set(value);

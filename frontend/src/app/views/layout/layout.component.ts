@@ -61,7 +61,7 @@ export class LayoutComponent {
       sideNavItems: [
         {
           icon: 'assignment',
-          label: 'تمرینات امروز',
+          label: 'تمرینات فعلی',
           route: '/notebook/daily-tasks',
         },
         {

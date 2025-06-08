@@ -51,6 +51,32 @@ async def get_user_timetables(
     )
 
 
+@user_timetable_router.get("/{item_id}", response_model=UserTimeTableRead)
+async def get_user_timetable_by_id(
+    item_id: str,
+    session: AsyncSession = Depends(get_async_session),
+    current_user: dict = Depends(current_active_user)
+):
+    try:
+        result = await session.execute(
+            select(UserTimeTable)
+            .where(UserTimeTable.id == item_id)
+            .where(UserTimeTable.user_id == current_user.id)
+        )
+        timetable = result.scalars().first()
+        if not timetable:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="UserTimeTable not found"
+            )
+        return timetable
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error fetching UserTimeTable: {str(e)}"
+        )
+
+
 @user_timetable_router.post("", response_model=UserTimeTableRead, status_code=status.HTTP_201_CREATED)
 async def save_user_timetable(
     timetable_data: UserTimeTableCreate,

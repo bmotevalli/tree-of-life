@@ -1,3 +1,18 @@
+import { Question } from './question.interface';
+
+export interface QuestionTimetable {
+  id?: string;
+  timetableId: string;
+  questionId: string;
+}
+
+export interface QuestionTimetableRead {
+  id?: string;
+  timetableId: string;
+  questionId: string;
+  question: Question;
+}
+
 export interface UserTimetable {
   id?: string;
   startDate: string;
@@ -5,7 +20,7 @@ export interface UserTimetable {
   notes?: string;
   title?: string;
   isSubmitted?: boolean; // Indicates if the timetable is currently submitted
-  questions?: any[];
+  questions?: QuestionTimetableRead[];
 }
 
 export interface UserTimetableSave {
@@ -16,15 +31,4 @@ export interface UserTimetableSave {
   title?: string;
   isSubmitted?: boolean; // Indicates if the timetable is currently submitted
   questionIds?: string[];
-}
-
-export interface QuestionTimetable {
-  id?: string;
-  timetableId: string;
-  questionId: string;
-}
-
-export interface QuestionTimetableBulkInsert {
-  timetableId: string;
-  questionIds: string[];
 }

@@ -15,20 +15,17 @@ class CommentCreate(BaseSchema, CamelModel):
 
 
 class UserAnswerRead(BaseSchema, CamelModel):
-    user_id: UUID
     question_id: UUID
     timetable_id: UUID
     day_of_plan: int
-    date_of_plan: date
     answer: Optional[Any]
     is_submitted: bool
-    comments: List[CommentRead]
+    comments: Optional[List[CommentRead]] = None
 
 class UserAnswerCreate(BaseSchema, CamelModel):
     question_id: UUID
     timetable_id: UUID
     day_of_plan: int
-    date_of_plan: date
     answer: Optional[Any]
     is_submitted: Optional[bool] = False
 

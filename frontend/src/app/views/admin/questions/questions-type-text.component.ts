@@ -1,4 +1,11 @@
-import { Component, input, output, signal } from '@angular/core';
+import {
+  Component,
+  input,
+  OnChanges,
+  SimpleChanges,
+  output,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Question } from '../../../interfaces/question.interface';
@@ -43,12 +50,21 @@ import { Question } from '../../../interfaces/question.interface';
     </div>
   `,
 })
-export class AnswerTextQuestionComponent {
+export class AnswerTextQuestionComponent implements OnChanges {
   readonly question = input<Question | null>(null);
   readonly answerChanged = output<string>();
 
+  initAnswer = input<string | null>(null);
+
   private _answer = signal<string>('');
   readonly answer = this._answer.asReadonly();
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['initAnswer']) {
+      const newAnswer = this.initAnswer() || '';
+      this._answer.set(newAnswer);
+    }
+  }
 
   onAnswerChange(event: Event) {
     const value = (event.target as HTMLInputElement).value;

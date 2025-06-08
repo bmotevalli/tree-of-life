@@ -1,4 +1,11 @@
-import { Component, input, output, signal } from '@angular/core';
+import {
+  Component,
+  input,
+  output,
+  signal,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Question } from '../../../interfaces/question.interface';
 
@@ -55,22 +62,46 @@ import { Question } from '../../../interfaces/question.interface';
     </div>
   `,
 })
-export class AnswerChoiceQuestionComponent {
+export class AnswerChoiceQuestionComponent implements OnChanges {
   readonly question = input<Question | null>(null);
   readonly answerChanged = output<string | string[]>();
+
+  initAnswer = input<string | string[] | null>(null);
 
   // For single-choice
   private _singleSelected = signal<string>('');
   readonly singleSelected = this._singleSelected.asReadonly();
 
+  // For multiple-choice
+  private _selectedOptionsMap = signal<Record<string, boolean>>({});
+  readonly selectedOptionsMap = this._selectedOptionsMap.asReadonly();
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['initAnswer']) {
+      const answer = this.initAnswer();
+      if (this.question()?.type === 'single_choice') {
+        if (typeof answer === 'string') {
+          this._singleSelected.set(answer);
+        } else {
+          this._singleSelected.set('');
+        }
+      }
+      if (this.question()?.type === 'multiple_choice') {
+        const map: Record<string, boolean> = {};
+        if (Array.isArray(answer)) {
+          for (const opt of answer) {
+            map[opt] = true;
+          }
+        }
+        this._selectedOptionsMap.set(map);
+      }
+    }
+  }
+
   onSingleSelected(option: string) {
     this._singleSelected.set(option);
     this.answerChanged.emit(option);
   }
-
-  // For multiple-choice
-  private _selectedOptionsMap = signal<Record<string, boolean>>({});
-  readonly selectedOptionsMap = this._selectedOptionsMap.asReadonly();
 
   onMultipleSelected(option: string, event: Event) {
     const checked = (event.target as HTMLInputElement).checked;

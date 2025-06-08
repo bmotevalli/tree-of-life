@@ -12,10 +12,9 @@ class UserAnswer(BaseModel):
     question_id = Column(UUID(as_uuid=True), ForeignKey("question.id"), nullable=False)
     timetable_id = Column(UUID(as_uuid=True), ForeignKey("user_timetable.id"), nullable=False)
     day_of_plan = Column(Integer, nullable=False)
-    date_of_plan = Column(Date, nullable=False)
     answer = Column(JSON, nullable=True)  # Can store different answer formats# key = question.id, value = response
     is_submitted = Column(Boolean, default=False)
-    comments = relationship("Comment", back_populates="answer", cascade="all, delete-orphan")
+    comments = relationship("Comment", back_populates="answer", cascade="all, delete-orphan", lazy="selectin")
 
 
 class Comment(BaseModel):

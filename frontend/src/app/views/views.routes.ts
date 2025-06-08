@@ -72,8 +72,8 @@ export const viewRoutes: Routes = [
         path: 'daily-tasks',
         canActivate: [AuthGuard],
         loadComponent: () =>
-          import('./notebook/tasks/tasks.component').then(
-            (m) => m.TasksComponent
+          import('./notebook/tasks/tasks-timetable.component').then(
+            (m) => m.TasksTimetableComponent
           ),
       },
       {

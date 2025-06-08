@@ -1,4 +1,11 @@
-import { Component, input, output, signal } from '@angular/core';
+import {
+  Component,
+  input,
+  output,
+  signal,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatSliderChange, MatSliderModule } from '@angular/material/slider';
 import { Question } from '../../../interfaces/question.interface';
@@ -77,12 +84,21 @@ import { Question } from '../../../interfaces/question.interface';
     </div>
   `,
 })
-export class AnswerSliderQuestionComponent {
+export class AnswerSliderQuestionComponent implements OnChanges {
   readonly question = input<Question | null>(null);
   readonly answerChanged = output<number>();
 
+  initAnswer = input<number | null>(null);
+
   private _sliderValue = signal<number>(0);
   readonly sliderValue = this._sliderValue.asReadonly();
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['initAnswer']) {
+      const answer = this.initAnswer();
+      this._sliderValue.set(answer ?? 0);
+    }
+  }
 
   onSliderChange(event: Event) {
     const value = (event.target as HTMLInputElement).valueAsNumber || 0;
