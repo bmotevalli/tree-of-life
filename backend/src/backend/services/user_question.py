@@ -1,3 +1,5 @@
+from datetime import timedelta
+from datetime import datetime
 from typing import Any, List
 
 from fastapi import HTTPException, status
@@ -52,16 +54,52 @@ class UserTimeTableService:
 
     @classmethod
     async def upsert_user_timetable(
-        cls, 
-        timetable_data: UserTimeTableCreate, 
-        session: AsyncSession, 
+        cls,
+        timetable_data: UserTimeTableCreate,
+        session: AsyncSession,
         current_user: Any
     ) -> UserTimeTableRead:
         try:
             now = get_perth_time()
 
-            # 1️⃣ Check if timetable exists for this user and time window (or pass in timetable_data.id if available)
-            # For now, let's assume the frontend sends timetable_data.id if it exists
+            requested_start_date = timetable_data.start_date.date()
+            requested_end_date = timetable_data.end_date.date()
+
+            # 1️⃣ Fetch existing submitted timetables overlapping the requested period
+            active_timetables_query = (
+                select(UserTimeTable)
+                .where(UserTimeTable.user_id == current_user.id)
+                .where(UserTimeTable.is_submitted == True)
+                .where(UserTimeTable.start_date <= requested_end_date)
+                .where(UserTimeTable.end_date >= requested_start_date)
+            )
+
+            # Exclude current record if updating
+            if getattr(timetable_data, "id", None):
+                active_timetables_query = active_timetables_query.where(UserTimeTable.id != timetable_data.id)
+
+            result = await session.execute(active_timetables_query)
+            active_timetables = result.scalars().all()
+
+            # 2️⃣ Check for overlaps
+            if timetable_data.is_submitted:
+                date_cursor = requested_start_date
+                while date_cursor <= requested_end_date:
+                    active_count = 1  # including the new timetable
+                    for t in active_timetables:
+                        # Extract just the date parts
+                        t_start = t.start_date.date() if isinstance(t.start_date, datetime) else t.start_date
+                        t_end = t.end_date.date() if isinstance(t.end_date, datetime) else t.end_date
+                        if t_start <= date_cursor <= t_end:
+                            active_count += 1
+                    if active_count > 2:
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"بازه تعریف شده برای این برنامه با دو برنامه دیگر در تلاقی است. حداکثر برنامه های همزمان 2 عدد می باشد. لطفا، بازه زمانی تان رو عوض کنید.."
+                        )
+                    date_cursor += timedelta(days=1)
+
+            # 3️⃣ Check if timetable exists
             user_timetable = None
             if getattr(timetable_data, "id", None):
                 result = await session.execute(
@@ -71,7 +109,7 @@ class UserTimeTableService:
                 )
                 user_timetable = result.scalars().first()
 
-            # 2️⃣ Update existing timetable or create new
+            # 4️⃣ Update existing or create new
             if user_timetable:
                 user_timetable.start_date = timetable_data.start_date
                 user_timetable.end_date = timetable_data.end_date
@@ -81,7 +119,6 @@ class UserTimeTableService:
                 user_timetable.updated_at = now
                 user_timetable.updated_by = current_user.id
 
-                # Delete existing question timetable entries
                 await session.execute(
                     QuestionTimeTable.__table__.delete().where(
                         QuestionTimeTable.timetable_id == user_timetable.id
@@ -103,7 +140,7 @@ class UserTimeTableService:
                 session.add(user_timetable)
                 await session.flush()  # get generated id
 
-            # 3️⃣ Create new question timetable entries (if any)
+            # 5️⃣ Add questions
             if timetable_data.question_ids:
                 question_timelines = [
                     QuestionTimeTable(
@@ -118,11 +155,10 @@ class UserTimeTableService:
                 ]
                 session.add_all(question_timelines)
 
-            # 4️⃣ Commit transaction
+            # 6️⃣ Commit
             await session.commit()
 
-            # 5️⃣ Fetch the timetable with all relationships eagerly loaded
-
+            # 7️⃣ Fetch with relationships
             result = await session.execute(
                 select(UserTimeTable)
                 .options(

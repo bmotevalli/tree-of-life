@@ -70,7 +70,9 @@ import { parseLocalDate, formatLocalDate } from '../../../utils/utils';
           ثبت برنامه
         </button>
       </div>
-      }
+      @if (error) {
+      <div class="p-2 text-red-500 text-bold">{{ error }}</div>
+      } }
     </ng-template>
 
     <div class="p-6 max-w-4xl mx-auto">
@@ -453,7 +455,7 @@ export class PlanningUpsertComponent {
           }
         },
         error: (err) => {
-          this.error = 'خطا در ذخیره‌سازی برنامه';
+          this.error = 'خطا در ذخیره‌سازی برنامه: ' + err.error.detail;
           console.error(err);
         },
       });
