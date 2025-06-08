@@ -28,8 +28,7 @@ import { Question } from '../../../interfaces/question.interface';
     <mat-card class="bg-white !bg-white shadow-lg w-full min-h-[80vh]  p-6">
       <button
         mat-raised-button
-        class="mb-2 max-w-[150px]"
-        color="primary"
+        class="c-primary mb-2 max-w-[150px]"
         (click)="onCreate()"
       >
         تمرین جدید

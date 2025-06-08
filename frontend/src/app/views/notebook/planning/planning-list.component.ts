@@ -14,6 +14,7 @@ import { UserTimetable } from '../../../interfaces/user-question.interface';
 import { parseLocalDate } from '../../../utils/utils';
 import { ConfirmDialogComponent } from '../../../core/shared/confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { TimetableService } from '../../../services/timetable.service';
 
 @Component({
   selector: 'app-timetables-list',
@@ -31,8 +32,7 @@ import { MatDialog } from '@angular/material/dialog';
     <mat-card class="bg-white !bg-white shadow-lg w-full min-h-[80vh]  p-6">
       <button
         mat-raised-button
-        class="mb-2 max-w-[150px]"
-        color="primary"
+        class="c-primary mb-2 max-w-[150px]"
         (click)="onCreate()"
       >
         برنامه جدید
@@ -113,15 +113,9 @@ export class PlanningListComponent implements OnInit {
 
   timetables: UserTimetable[] = []; // TODO: Populate from backend
   columns: string[] = ['title', 'startDate', 'endDate', 'status', 'actions'];
-  timetableService: CrudBaseService<UserTimetable>;
+  timetableService = inject(TimetableService);
 
-  constructor(
-    private crudFactory: CrudServiceFactory,
-    private dialog: MatDialog
-  ) {
-    this.timetableService =
-      this.crudFactory.create<UserTimetable>('user-timetables');
-  }
+  constructor(private dialog: MatDialog) {}
 
   ngOnInit() {
     this.loadTimetables();
@@ -147,7 +141,7 @@ export class PlanningListComponent implements OnInit {
 
   // API Calls
   loadTimetables() {
-    this.timetableService.getAll(100).subscribe((timetables) => {
+    this.timetableService.getMyTimetables().subscribe((timetables) => {
       this.timetables = timetables;
     });
   }

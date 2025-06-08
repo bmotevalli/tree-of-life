@@ -16,7 +16,7 @@ export class TimetableService extends CrudBaseService<UserTimetable> {
     includeQuestions: boolean = false,
     showActive: boolean = false,
     showPending: boolean = false
-  ): Observable<UserTimetable> {
+  ): Observable<UserTimetable[]> {
     const params = new HttpParams({
       fromObject: {
         include_questions: includeQuestions,
@@ -24,6 +24,6 @@ export class TimetableService extends CrudBaseService<UserTimetable> {
         show_pending: showPending,
       },
     });
-    return this.http.get<UserTimetable>(`${this.endpoint}/me`, { params });
+    return this.http.get<UserTimetable[]>(`${this.endpoint}/me`, { params });
   }
 }
