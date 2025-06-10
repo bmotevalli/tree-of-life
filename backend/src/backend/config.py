@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     SECRET: str
     ORIGINS: List[str] = []
+    API_PRE_PATH: str = ''
+    EMBED_UI: bool = False
 
     model_config = SettingsConfigDict(env_file=".env")
 

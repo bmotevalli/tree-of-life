@@ -45,6 +45,9 @@ isort = "^5.13.2"
 mypy = "^1.10.0"
 pytest = "^8.2.0"
 
+[tool.poetry.group.deploy.dependencies]
+gunicorn = "^21.0.0"
+
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
