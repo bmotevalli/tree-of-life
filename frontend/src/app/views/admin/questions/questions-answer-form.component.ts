@@ -1,4 +1,11 @@
-import { Component, input, OnInit, signal, inject } from '@angular/core';
+import {
+  Component,
+  input,
+  OnInit,
+  signal,
+  inject,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Question } from '../../../interfaces/question.interface';
 import {
@@ -116,6 +123,17 @@ export class AnswerQuestionFormComponent implements OnInit {
   private userAnswerService = inject(UserAnswerService);
 
   ngOnInit() {
+    // Keep ngOnInit if you want to support initial load on component mount
+    this.loadAnswersIfReady();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['timetableId'] || changes['dayOfPlan']) {
+      this.loadAnswersIfReady();
+    }
+  }
+
+  loadAnswersIfReady() {
     if (this.timetableId() && this.dayOfPlan() !== null) {
       this.loadAnswers();
     }
