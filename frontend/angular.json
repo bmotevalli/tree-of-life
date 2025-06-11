@@ -55,7 +55,7 @@
             "styles": ["src/styles.scss"],
             "scripts": [],
             "stylePreprocessorOptions": {
-              "includePaths": ["src/styles"]
+              "includePaths": ["src"]
             }
           },
           "configurations": {

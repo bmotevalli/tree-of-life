@@ -104,6 +104,101 @@ questions:
       - انرژی
       - بدن فیزیکی
 
-  - prompt: جنبه
-    type: multiple_choice
-    group: تعادل در چهار عنصر
+  - prompt: "جنبه: اراده من"
+    type: slider
+    group: کدام نیروها در من فعال بودند؟
+    meta:
+      min: -100
+      max: 100
+      minLabel: خودمحوری، کنترل
+      maxLabel: خدمت، هدف روشن
+
+  - prompt: "جنبه: شهود"
+    type: slider
+    group: کدام نیروها در من فعال بودند؟
+    meta:
+      min: -100
+      max: 100
+      minLabel: توهم، خیال‌بافی
+      maxLabel: بینش و درک
+
+  - prompt: "جنبه: عقل"
+    type: slider
+    group: کدام نیروها در من فعال بودند؟
+    meta:
+      min: -100
+      max: 100
+      minLabel: قضاوت، خشک‌سری
+      maxLabel: تعادل، تحلیل درست
+
+  - prompt: "جنبه: عشق"
+    type: slider
+    group: کدام نیروها در من فعال بودند؟
+    meta:
+      min: -100
+      max: 100
+      minLabel: دلسوزی کنترل‌گر
+      maxLabel: بخشش، مهربانی
+
+  - prompt: "جنبه: قدرت"
+    type: slider
+    group: کدام نیروها در من فعال بودند؟
+    meta:
+      min: -100
+      max: 100
+      minLabel: خشونت، قهر
+      maxLabel: مرز سالم، قاطعیت
+
+  - prompt: "جنبه: هویت"
+    type: slider
+    group: کدام نیروها در من فعال بودند؟
+    meta:
+      min: -100
+      max: 100
+      minLabel: خودنمایی، ریا
+      maxLabel: فروتنی، صداقت
+
+  - prompt: "جنبه: اراده من"
+    type: slider
+    group: کدام نیروها در من فعال بودند؟
+    meta:
+      min: -100
+      max: 100
+      minLabel: خودمحوری، کنترل
+      maxLabel: خدمت، هدف روشن
+
+  - prompt: "جنبه: احساسات"
+    type: slider
+    group: کدام نیروها در من فعال بودند؟
+    meta:
+      min: -100
+      max: 100
+      minLabel: هیجان‌زدگی، دمدمی
+      maxLabel: پایداری، الهام
+
+  - prompt: "جنبه: بیان"
+    type: slider
+    group: کدام نیروها در من فعال بودند؟
+    meta:
+      min: -100
+      max: 100
+      minLabel: فریب، کلمات مبهم
+      maxLabel: صداقت، شفافیت
+
+  - prompt: "جنبه: آگاهی"
+    type: slider
+    group: کدام نیروها در من فعال بودند؟
+    meta:
+      min: -100
+      max: 100
+      minLabel: فانتزی، خواب‌آلودگی
+      maxLabel: اتصال به درون
+
+  - prompt: "جنبه: جسم و ماده"
+    type: slider
+    group: کدام نیروها در من فعال بودند؟
+    meta:
+      min: -100
+      max: 100
+      minLabel: وابستگی، شهوت
+      maxLabel: حضور مقدس، پاکدامنی
