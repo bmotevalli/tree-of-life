@@ -14,7 +14,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 
 import {
@@ -29,7 +31,7 @@ import { QuestionTagAssociation } from '../../../interfaces/question.interface';
 
 import { QuestionGroupDialogButtonComponent } from './questions-dialog-group.component';
 import { QuestionTagsDialogButtonComponent } from './questions-dialog-tags.component';
-import { forkJoin } from 'rxjs';
+import { finalize, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-question-form',
@@ -45,6 +47,7 @@ import { forkJoin } from 'rxjs';
     MatCardModule,
     RouterModule,
     MatAutocompleteModule,
+    MatProgressSpinnerModule,
     MatChipsModule,
     QuestionGroupDialogButtonComponent,
     QuestionTagsDialogButtonComponent,
@@ -52,13 +55,20 @@ import { forkJoin } from 'rxjs';
   template: `
     <div class="flex justify-center mt-10">
       <mat-card class="bg-white !bg-white shadow-lg w-full max-w-xl p-6">
+        @if (error()) {
+        <span class="text-red-500">{{ error() }}</span>
+        } @if(loading()) {
+        <mat-spinner></mat-spinner>
+        } @else {
         <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
           <!-- Group -->
           <mat-form-field appearance="outline" class="w-full">
             <mat-label>گروه تمرین (اختیاری)</mat-label>
             <mat-select formControlName="groupId">
               <mat-option
-                ><app-question-group-dialog-button></app-question-group-dialog-button
+                ><app-question-group-dialog-button
+                  (groupSaved)="loadQuestionGroups(true)"
+                ></app-question-group-dialog-button
               ></mat-option>
               <mat-option value="">بدون گروه</mat-option>
               @for (group of questionGroups; track group.id) {
@@ -188,6 +198,7 @@ import { forkJoin } from 'rxjs';
             </button>
           </div>
         </form>
+        }
       </mat-card>
     </div>
   `,
@@ -200,6 +211,11 @@ export class QuestionFormComponent {
   private questionGroupService: CrudBaseService<QuestionGroup>;
   private questionTagsService: CrudBaseService<QuestionTag>;
   private questionTagAssociationService = inject(QuestionTagAssociationService);
+
+  private snackBar = inject(MatSnackBar);
+
+  loading = signal<boolean>(false);
+  error = signal<string | null>(null);
 
   questionForm!: FormGroup;
   questionGroups: QuestionGroup[] = [];
@@ -286,56 +302,78 @@ export class QuestionFormComponent {
   }
 
   loadQuestion(id: string) {
-    this.questionService.getById(id).subscribe({
-      next: (question: Question) => {
-        this.questionForm.patchValue({
-          title: question.title || '',
-          prompt: question.prompt,
-          type: question.type,
-          options: question.options || [],
-          meta: question.meta || '',
-          groupId: question.groupId || null,
-          exampleAnswer: question.exampleAnswer || '',
-        });
+    this.loading.set(true);
+    this.error.set(null);
+    this.questionService
+      .getById(id)
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (question: Question) => {
+          this.questionForm.patchValue({
+            title: question.title || '',
+            prompt: question.prompt,
+            type: question.type,
+            options: question.options || [],
+            meta: question.meta || '',
+            groupId: question.groupId || null,
+            exampleAnswer: question.exampleAnswer || '',
+          });
 
-        // Set slider meta if type is slider
-        if (question.type === 'slider' && question.meta) {
-          this.questionForm.setControl(
-            'sliderMetaForm',
-            this.fb.group({
-              min: [question.meta.min || null, Validators.required],
-              max: [question.meta.max || null, Validators.required],
-              minLabel: [question.meta.minLabel || ''],
-              maxLabel: [question.meta.maxLabel || ''],
-            })
-          );
-        }
+          // Set slider meta if type is slider
+          if (question.type === 'slider' && question.meta) {
+            this.questionForm.setControl(
+              'sliderMetaForm',
+              this.fb.group({
+                min: [question.meta.min || null, Validators.required],
+                max: [question.meta.max || null, Validators.required],
+                minLabel: [question.meta.minLabel || ''],
+                maxLabel: [question.meta.maxLabel || ''],
+              })
+            );
+          }
 
-        // Set tags
-        const tagsControl = this.questionForm.get('tags');
-        if (tagsControl && question.tags) {
-          tagsControl.setValue(question.tags);
-        }
-      },
-      error: (err: any) => {
-        console.error('Error loading question:', err);
-        alert('خطا در بارگذاری تمرین. لطفاً دوباره تلاش کنید.');
-      },
-    });
+          // Set tags
+          const tagsControl = this.questionForm.get('tags');
+          if (tagsControl && question.tags) {
+            tagsControl.setValue(question.tags);
+          }
+        },
+        error: (err: any) => {
+          console.error('Error loading question:', err);
+          this.error.set('خطا در بارگذاری تمرین. لطفاً دوباره تلاش کنید.');
+        },
+      });
   }
 
-  loadQuestionGroups() {
-    this.questionGroupService.getAll().subscribe({
-      next: (groups) => (this.questionGroups = groups),
-      error: (err) => console.error('Error loading groups:', err),
-    });
+  loadQuestionGroups(afterDiag: boolean = false) {
+    this.loading.set(true);
+    this.error.set(null);
+    if (afterDiag) {
+      this.snackBar.open('گروه با موفقیت ذخیره شد.', 'بستن', {
+        duration: 3000, // auto close in 3 seconds
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom', // or 'top'
+      });
+    }
+    this.questionGroupService
+      .getAll()
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (groups) => (this.questionGroups = groups),
+        error: (err) => this.error.set(`Error loading groups: ${err}`),
+      });
   }
 
   loadTags() {
-    this.questionTagsService.getAll().subscribe({
-      next: (tags) => (this.tags = tags),
-      error: (err) => console.error('Error loading tags:', err),
-    });
+    this.loading.set(true);
+    this.error.set(null);
+    this.questionTagsService
+      .getAll()
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (tags) => (this.tags = tags),
+        error: (err) => this.error.set(`Error loading tags: ${err}`),
+      });
   }
 
   // EVENTS
@@ -347,6 +385,9 @@ export class QuestionFormComponent {
 
   onSubmit() {
     if (this.questionForm.invalid) return;
+
+    this.loading.set(true);
+    this.error.set(null);
 
     const formValue = this.questionForm.value;
     let parsedMeta: any = null;
@@ -369,62 +410,74 @@ export class QuestionFormComponent {
 
     const { tags, sliderMetaForm, ...questionData } = data;
 
-    console.log('Question data to send:', questionData);
-    console.log('Selected tags:', tags);
-    console.log('Question Id:', this.questionId!);
-
     if (this.isEditMode) {
       // TODO: Call update API
-      this.questionService.update(this.questionId!, data).subscribe({
-        next: (updatedQuestion) => {
-          this.questionTagAssociationService
-            .deleteByQuestionId(this.questionId!)
-            .subscribe({
-              next: () => {
-                const tagRequests = tags.map((tagId: string) =>
-                  this.questionTagAssociationService.create({
-                    questionId: this.questionId!,
-                    tagId,
-                  })
-                );
-                forkJoin(tagRequests).subscribe({
-                  next: () => {
-                    this.router.navigate(['/admin/questions']);
-                  },
-                  error: (err) => console.error('Error updating tags:', err),
-                });
-              },
-              error: (err) => console.error('Error deleting tags:', err),
-            });
-        },
-        error: (err) => console.error('Error updating question:', err),
-      });
+      this.questionService
+        .update(this.questionId!, data)
+        .pipe(finalize(() => this.loading.set(false)))
+        .subscribe({
+          next: (updatedQuestion) => {
+            this.questionTagAssociationService
+              .deleteByQuestionId(this.questionId!)
+              .subscribe({
+                next: () => {
+                  const tagRequests = tags.map((tagId: string) =>
+                    this.questionTagAssociationService.create({
+                      questionId: this.questionId!,
+                      tagId,
+                    })
+                  );
+                  forkJoin(tagRequests).subscribe({
+                    next: () => {
+                      this.snackBar.open('سوال با موفقیت ذخیره شد', 'بستن', {
+                        duration: 3000, // auto close in 3 seconds
+                        horizontalPosition: 'center',
+                        verticalPosition: 'bottom', // or 'top'
+                      });
+                      this.router.navigate(['/admin/questions']);
+                    },
+                    error: (err) =>
+                      this.error.set(`Error updating tags: ${err}`),
+                  });
+                },
+                error: (err) => this.error.set(`Error deleting tags: ${err}`),
+              });
+          },
+          error: (err) => this.error.set(`Error updating question: ${err}`),
+        });
     } else {
-      this.questionService.create(data).subscribe({
-        next: (createdQuestion) => {
-          const questionId = createdQuestion.id;
+      this.questionService
+        .create(data)
+        .pipe(finalize(() => this.loading.set(false)))
+        .subscribe({
+          next: (createdQuestion) => {
+            const questionId = createdQuestion.id;
 
-          const tagRequests = tags.map((tagId: string) =>
-            this.questionTagAssociationService.create({
-              questionId,
-              tagId,
-            })
-          );
+            const tagRequests = tags.map((tagId: string) =>
+              this.questionTagAssociationService.create({
+                questionId,
+                tagId,
+              })
+            );
 
-          forkJoin(tagRequests).subscribe({
-            next: () => {
-              console.log('Tags created successfully.');
-              this.router.navigate(['/admin/questions']);
-            },
-            error: (err: any) => {
-              console.error('Error creating tags:', err);
-            },
-          });
-        },
-        error: (err) => {
-          console.error('Error creating question:', err);
-        },
-      });
+            forkJoin(tagRequests).subscribe({
+              next: () => {
+                this.snackBar.open('سوال با موفقیت ذخیره شد', 'بستن', {
+                  duration: 3000, // auto close in 3 seconds
+                  horizontalPosition: 'center',
+                  verticalPosition: 'bottom', // or 'top'
+                });
+                this.router.navigate(['/admin/questions']);
+              },
+              error: (err: any) => {
+                this.error.set(`Error creating tags: ${err}`);
+              },
+            });
+          },
+          error: (err) => {
+            this.error.set(`Error creating question: ${err}`);
+          },
+        });
     }
   }
 }

@@ -1,9 +1,11 @@
 import {
   Component,
+  EventEmitter,
   Input,
   TemplateRef,
   ViewChild,
   inject,
+  output,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -89,6 +91,8 @@ export class QuestionGroupDialogButtonComponent {
   @Input() group?: QuestionGroup;
   @Input() label: string = 'افزودن گروه جدید';
 
+  groupSaved = output<QuestionGroup>();
+
   form: FormGroup = this.fb.group({
     name: ['', Validators.required],
     description: [''],
@@ -125,6 +129,7 @@ export class QuestionGroupDialogButtonComponent {
       this.questionGroupService.update(this.group.id, groupData).subscribe({
         next: (updated) => {
           this.dialogRef.close(updated);
+          this.groupSaved.emit(updated);
         },
         error: (err) => console.error('Error updating group:', err),
       });
@@ -133,6 +138,7 @@ export class QuestionGroupDialogButtonComponent {
       this.questionGroupService.create(groupData).subscribe({
         next: (created) => {
           this.dialogRef.close(created);
+          this.groupSaved.emit(created);
         },
         error: (err) => console.error('Error creating group:', err),
       });

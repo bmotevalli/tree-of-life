@@ -5,8 +5,10 @@ import {
   signal,
   inject,
   SimpleChanges,
+  computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Question } from '../../../interfaces/question.interface';
 import {
   UserAnswerRead,
@@ -18,19 +20,28 @@ import { AnswerChoiceQuestionComponent } from './questions-type-choice.component
 import { AnswerSingleEntryQuestionComponent } from './questions-type-single-entry.component';
 import { AnswerSliderQuestionComponent } from './questions-type-slider.component';
 import { AnswerTextQuestionComponent } from './questions-type-text.component';
+import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 @Component({
   selector: 'app-answer-question-form',
   standalone: true,
   imports: [
     CommonModule,
+    MatProgressSpinnerModule,
     AnswerSingleEntryQuestionComponent,
     AnswerSliderQuestionComponent,
     AnswerTextQuestionComponent,
     AnswerChoiceQuestionComponent,
   ],
   template: `
-    <div [class.disabled]="isDisabled()">
+    <div [class.disabled]="isDisabled() || formSubmitted()">
+      @if (formSubmitted()) {
+      <div
+        class=" w-fit bg-green-600 text-white text-xs px-2 py-0.5 rounded-br-lg z-10"
+      >
+        ثبت شده
+      </div>
+      }
       <div class="space-y-4">
         <!-- Render ungrouped questions -->
         @for (question of ungroupedQuestions(); track question.id) {
@@ -66,15 +77,31 @@ import { AnswerTextQuestionComponent } from './questions-type-text.component';
           type="button"
           class="c-info px-4 py-2 rounded"
           (click)="onSave()"
+          [disabled]="loading()"
         >
-          ذخیره
+          @if (loading()) {
+          <mat-spinner
+            diameter="20"
+            mode="indeterminate"
+            color="accent"
+            [strokeWidth]="3"
+          ></mat-spinner>
+          } @else { ذخیره }
         </button>
         <button
           type="button"
           class="c-success px-4 py-2 rounded"
+          [disabled]="loading()"
           (click)="onSubmit()"
         >
-          ارسال
+          @if (loading()) {
+          <mat-spinner
+            diameter="20"
+            mode="indeterminate"
+            color="accent"
+            [strokeWidth]="3"
+          ></mat-spinner>
+          } @else { ارسال }
         </button>
       </div>
       }
@@ -119,7 +146,9 @@ export class AnswerQuestionFormComponent implements OnInit {
   readonly timetableId = input<string | undefined>(undefined);
   readonly dayOfPlan = input<number | undefined>(undefined);
 
-  private _answers = signal<Record<string, any>>({});
+  loading = signal<boolean>(false);
+  error = signal<string | null>(null);
+  private _answers = signal<Record<string, UserAnswerRead>>({});
   private userAnswerService = inject(UserAnswerService);
 
   ngOnInit() {
@@ -158,29 +187,38 @@ export class AnswerQuestionFormComponent implements OnInit {
       return;
     }
 
-    const payloads: UserAnswerSave[] = [];
+    this.loading.set(true); // Start loading
+    this.error.set(null);
 
-    for (const [questionId, answer] of Object.entries(this._answers())) {
-      payloads.push({
-        timetableId: timetableId,
-        questionId: questionId,
-        dayOfPlan: dayOfPlan,
-        answer,
-        isSubmitted: isSubmitted,
-      });
-    }
+    const requests = Object.entries(this._answers()).map(
+      ([questionId, answer]) => {
+        const payload: UserAnswerSave = {
+          timetableId,
+          questionId,
+          dayOfPlan,
+          isSubmitted,
+          ...{ answer: answer.answer },
+        };
 
-    // Call backend for each answer (or could create a bulk endpoint)
-    payloads.forEach((payload) => {
-      this.userAnswerService.create(payload).subscribe({
-        next: (res) => {
-          console.log('Answer saved:', res);
-        },
-        error: (err) => {
-          console.error('Error saving answer:', err);
-        },
+        return this.userAnswerService.create(payload).pipe(
+          catchError((err) => {
+            console.error('Error saving answer:', err);
+            this.error.set(`خطایی در هنگام ذخیره پاسخ رخ داد. ${err}`);
+            return of(null); // Prevent complete failure of forkJoin
+          })
+        );
+      }
+    );
+
+    forkJoin(requests)
+      .pipe(
+        finalize(() => {
+          this.loading.set(false); // End loading once all complete
+        })
+      )
+      .subscribe((results) => {
+        console.log('All answers saved:', results);
       });
-    });
   }
 
   onSave() {
@@ -192,19 +230,23 @@ export class AnswerQuestionFormComponent implements OnInit {
   }
 
   loadAnswers() {
+    this.error.set(null);
+    this.loading.set(true);
     if (this.timetableId() && this.dayOfPlan()) {
       this.userAnswerService
         .getMyAnswersByTimetableDay(this.timetableId(), this.dayOfPlan())
+        .pipe(finalize(() => this.loading.set(false)))
         .subscribe({
           next: (answers) => {
             const prefilled: Record<string, any> = {};
             answers.forEach((ans) => {
-              prefilled[ans.questionId] = ans.answer;
+              prefilled[ans.questionId] = ans;
             });
             this._answers.set(prefilled);
           },
           error: (err) => {
             console.error('Error loading answers:', err);
+            this.error.set(`خطایی در بارگزاری پاسخها رخ داد: ${err}`);
           },
         });
     }
@@ -212,8 +254,7 @@ export class AnswerQuestionFormComponent implements OnInit {
 
   getQuestionAnswer(question: Question) {
     if (question.id) {
-      console.log(this._answers());
-      return this._answers()[question.id];
+      return this._answers()[question.id]?.answer;
     }
   }
 
@@ -245,4 +286,10 @@ export class AnswerQuestionFormComponent implements OnInit {
     }
     return [];
   }
+
+  // COMPUTES
+
+  readonly formSubmitted = computed(() =>
+    Object.values(this._answers()).some((ans) => ans.isSubmitted)
+  );
 }

@@ -53,14 +53,24 @@
           (ngModelChange)="password.set($event)"
         />
       </div>
-
       <button
         type="submit"
-        [disabled]="!isFormValid()"
-        class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300 font-yekan"
+        [disabled]="!isFormValid() || loading()"
+        class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300 font-yekan flex justify-center items-center gap-2"
       >
-        ورود
+        @if (loading()) {
+        <mat-spinner
+          diameter="20"
+          mode="indeterminate"
+          color="accent"
+          [strokeWidth]="3"
+        ></mat-spinner>
+        } @else { ورود }
       </button>
+
+      @if (error()) {
+      <span class="text-red-500 block mt-2">{{ error() }}</span>
+      }
     </form>
   </div>
 </div>
