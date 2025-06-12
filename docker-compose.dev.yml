@@ -16,7 +16,7 @@ services:
   backend:
     build:
       context: ./backend
-    command: /wait-for-it.sh db:5432 -- uvicorn backend.main:app --host 0.0.0.0 --port 8080 --reload
+    command: sh -c "./wait-for-it.sh db:5432 -- uvicorn backend.main:app --host 0.0.0.0 --port 8080 --reload"
     # command: >
     #   sh -c "pip install debugpy &&
     #      wait-for-it.sh db:5432 --
