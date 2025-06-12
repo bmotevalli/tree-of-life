@@ -11,6 +11,7 @@ from backend.routes.question import question_router, question_tag_router, questi
 from backend.routes.user_answer import user_answer_router, comment_router, coach_router
 from backend.routes.user_question import user_timetable_router, question_timetable_router
 
+
 app = FastAPI(
     docs_url=f"{settings.API_PRE_PATH}/docs" if settings.API_PRE_PATH else "/docs",
     redoc_url=f"{settings.API_PRE_PATH}/redoc" if settings.API_PRE_PATH else "/redoc",
@@ -66,6 +67,6 @@ class SPAStaticFiles(StaticFiles):
 
 if settings.EMBED_UI:
     dirname = os.path.dirname(__file__)
-    static_path = os.path.join(dirname, "static", "frontend", "browser")
+    static_path = os.path.join(dirname, "static", "browser")
 
     app.mount("/", SPAStaticFiles(directory=static_path, html=True), name="static")
