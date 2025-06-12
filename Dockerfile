@@ -13,8 +13,12 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm install --legacy-peer-deps && npm install -g @angular/cli --unsafe
 
-# Build the Angular app
 COPY frontend/ ./
+
+# ✅ Override env.js with production version
+RUN cp src/assets/env.prod.js src/assets/env.js
+
+# Build the Angular app
 ARG BUILD_COMMAND=build
 RUN npm run $BUILD_COMMAND
 
