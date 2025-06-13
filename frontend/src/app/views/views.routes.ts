@@ -33,8 +33,8 @@ export const viewRoutes: Routes = [
             path: '',
             canActivate: [AuthGuard, AdminGuard],
             loadComponent: () =>
-              import('./admin/questions/questions-list.component').then(
-                (m) => m.QuestionsListComponent
+              import('./admin/questions/questions-admin.component').then(
+                (m) => m.QuestionsAdminComponent
               ),
           },
           {
