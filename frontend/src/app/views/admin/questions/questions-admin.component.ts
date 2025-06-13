@@ -74,7 +74,7 @@ export class QuestionsAdminComponent implements OnInit {
   private router = inject(Router);
 
   displayMode: 'table' | 'cards' | 'compact' = 'table';
-  grouping = false;
+  grouping: boolean = false;
 
   questions: Question[] = [];
   questionsFiltered: Question[] = [];

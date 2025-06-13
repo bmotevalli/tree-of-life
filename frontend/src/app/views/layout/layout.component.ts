@@ -1,5 +1,6 @@
-import { Component, signal, computed, ViewChild, inject } from '@angular/core';
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { filter } from 'rxjs/operators';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -14,7 +15,6 @@ import { NavItem } from '../../interfaces/layout.interface';
 @Component({
   standalone: true,
   selector: 'app-layout',
-  templateUrl: './layout.component.html',
   imports: [
     MatIconModule,
     RouterModule,
@@ -26,6 +26,106 @@ import { NavItem } from '../../interfaces/layout.interface';
     MatSidenavModule,
     MatCardModule,
   ],
+  template: `
+    <!-- Wrap everything in a full-height flex column layout -->
+    <div class="h-screen flex flex-col">
+      <!-- Fixed height toolbar at the top -->
+      <mat-toolbar color="primary">
+        <button
+          [disabled]="activeNavItem()?.sideNavItems?.length === 0"
+          mat-icon-button
+          (click)="sidebarOpen.set(!sidebarOpen())"
+        >
+          <mat-icon>menu</mat-icon>
+        </button>
+
+        <!-- Desktop Nav Items -->
+        <div class="hidden md:flex gap-6 items-center justify-center w-full">
+          @for (item of navItems; track item.route) {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="active-link"
+            class="hover:text-yellow-500 text-md transition flex items-center gap-1"
+            (click)="onNavItemClick(item)"
+            mat-button
+          >
+            <span>{{ item.label }}</span>
+          </a>
+          }
+        </div>
+
+        <!-- Mobile Dropdown -->
+        <div class="md:hidden relative">
+          <button mat-button (click)="showMobileMenu.set(!showMobileMenu())">
+            <mat-icon>arrow_drop_down</mat-icon>
+            <span>صفحات</span>
+          </button>
+          @if (showMobileMenu()) {
+          <div
+            class="absolute right-0 mt-2 w-44 bg-white text-black rounded shadow-md z-50 flex flex-col"
+          >
+            @for (item of navItems; track item.route) {
+            <a
+              [routerLink]="item.route"
+              class="px-4 py-2 hover:bg-gray-100 text-sm items-center gap-1 flex"
+              (click)="onNavItemClick(item)"
+            >
+              <mat-icon>{{ item.icon }}</mat-icon>
+              <span>{{ item.label }}</span>
+            </a>
+            }
+          </div>
+          }
+        </div>
+
+        <div>
+          <button mat-button (click)="onLogout()">
+            <mat-icon class="order-end">logout</mat-icon>
+            <span>خروج</span>
+          </button>
+        </div>
+      </mat-toolbar>
+
+      <!-- Fill remaining height with sidenav container -->
+      <mat-sidenav-container class="flex-1 min-h-0 border">
+        <!-- Sidebar -->
+        <mat-sidenav
+          #drawer
+          [mode]="isMobile() ? 'over' : 'side'"
+          [opened]="
+            isMobile()
+              ? sidebarOpen() && !!activeNavItem()?.sideNavItems?.length
+              : !!activeNavItem()?.sideNavItems?.length
+          "
+          class="custom-sidenav"
+        >
+          @if (activeNavItem()?.sideNavItems?.length) {
+          <mat-nav-list class="bg-white h-full rounded-none!">
+            @for (item of activeNavItem()?.sideNavItems; track item.route) {
+            <a mat-list-item [routerLink]="item.route">
+              <div class="flex items-center gap-1 w-full">
+                <mat-icon>{{ item.icon }}</mat-icon>
+                <span>{{ item.label }}</span>
+              </div>
+            </a>
+            }
+          </mat-nav-list>
+          }
+        </mat-sidenav>
+
+        <!-- Main content -->
+        <mat-sidenav-content class="bg-gray-100">
+          <section
+            [class.p-4]="!isMobile()"
+            [class.p-0]="isMobile()"
+            class="h-full overflow-auto"
+          >
+            <router-outlet></router-outlet>
+          </section>
+        </mat-sidenav-content>
+      </mat-sidenav-container>
+    </div>
+  `,
   styleUrl: './layout.component.scss',
 })
 export class LayoutComponent {
@@ -35,6 +135,7 @@ export class LayoutComponent {
   isMobile = signal(window.innerWidth < 768);
 
   private router = inject(Router);
+  private breakpointObserver = inject(BreakpointObserver);
 
   constructor() {
     // Watch for route changes
