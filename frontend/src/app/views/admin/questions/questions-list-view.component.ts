@@ -103,7 +103,7 @@ import { Question } from '../../../interfaces/question.interface';
 
     <!-- Card View -->
     <ng-template #cardView let-data>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         @for (q of data; track q.id) {
         <div
           class="border border-gray-300 p-4 flex flex-col gap-2 cursor-pointer"
@@ -136,7 +136,7 @@ import { Question } from '../../../interfaces/question.interface';
               color="primary"
               (click)="addQ.emit(q.id); $event.stopPropagation()"
             >
-              ویرایش
+              اضافه کن
             </button>
             } @if (action === 'edit') {
             <button
@@ -180,15 +180,15 @@ import { Question } from '../../../interfaces/question.interface';
 
           <div class="flex gap-2">
             @for (action of qActions(); track action) { @if (action === 'add') {
-            <button mat-icon-button color="primary" (click)="addQ.emit(q.id)">
+            <button mat-icon-button color="primary" (click)="addQ.emit(q)">
               <mat-icon>add</mat-icon>
             </button>
             } @if (action === 'edit') {
-            <button mat-icon-button color="primary" (click)="editQ.emit(q.id)">
+            <button mat-icon-button color="primary" (click)="editQ.emit(q)">
               <mat-icon>edit</mat-icon>
             </button>
             } @if (action === 'delete') {
-            <button mat-icon-button color="warn" (click)="deleteQ.emit(q.id)">
+            <button mat-icon-button color="warn" (click)="deleteQ.emit(q)">
               <mat-icon>delete</mat-icon>
             </button>
             } }
@@ -203,11 +203,7 @@ import { Question } from '../../../interfaces/question.interface';
       @for (group of groupNames(); track group) {
       <mat-expansion-panel expanded="false">
         <mat-expansion-panel-header>
-          <div class="w-full justify-end">
-            <span>{{ group }}</span>
-          </div>
-
-          <!-- <mat-panel-title>{{ group }}</mat-panel-title> -->
+          <mat-panel-title class="text-base">{{ group }}</mat-panel-title>
           <mat-panel-description class="!justify-end">
             @if (gActions().length > 0) {
             <div class="mt-2 flex gap-2">
@@ -218,7 +214,7 @@ import { Question } from '../../../interfaces/question.interface';
                 color="primary"
                 (click)="addG.emit(group); $event.stopPropagation()"
               >
-                ویرایش
+                اضافه کن
               </button>
               } @if (action === 'edit') {
               <button
@@ -294,9 +290,9 @@ export class QuestionsListViewComponent {
   gActions = input<('add' | 'edit' | 'delete')[]>([]);
 
   questionSelected = output<Question>();
-  editQ = output<string | undefined>();
-  deleteQ = output<string | undefined>();
-  addQ = output<string>();
+  editQ = output<Question | undefined>();
+  deleteQ = output<Question | undefined>();
+  addQ = output<Question>();
 
   editG = output<string | undefined>();
   deleteG = output<string | undefined>();

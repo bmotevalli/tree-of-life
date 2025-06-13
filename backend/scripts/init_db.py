@@ -85,7 +85,8 @@ async def main():
                 options=question_data.get("options"),
                 example_answer=question_data.get("example_answer"),
                 group=group,
-                tags=tags
+                tags=tags,
+                meta=question_data.get("meta")
             )
             session.add(question)
 

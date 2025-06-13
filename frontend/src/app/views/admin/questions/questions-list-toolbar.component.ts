@@ -126,6 +126,21 @@ import { Question } from '../../../interfaces/question.interface';
       }
     </div>
   `,
+  styles: [
+    `
+      ::ng-deep .mat-expansion-panel-header .mat-expansion-panel-header-title {
+        font-size: 12px;
+
+        @media (min-width: 640px) {
+          font-size: 16px;
+        }
+
+        @media (min-width: 768px) {
+          font-size: 18px;
+        }
+      }
+    `,
+  ],
 })
 export class QuestionsToolbarComponent {
   displayMode = input<'table' | 'cards' | 'compact'>('table');

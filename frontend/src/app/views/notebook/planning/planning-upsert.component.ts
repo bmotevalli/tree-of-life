@@ -8,8 +8,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
+import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { finalize } from 'rxjs/operators';
+
+import { QuestionsListViewComponent } from '../../admin/questions/questions-list-view.component';
+import { QuestionsToolbarComponent } from '../../admin/questions/questions-list-toolbar.component';
 
 import { AnswerQuestionFormComponent } from '../../admin/questions/questions-answer-form.component';
 import { HorizontalSeparatorComponent } from '../../../core/shared/h-separator.component';
@@ -38,8 +44,12 @@ import { parseLocalDate, formatLocalDate } from '../../../utils/utils';
     MatFormFieldModule,
     MatSelectModule,
     MatProgressSpinnerModule,
+    MatCardModule,
     HorizontalSeparatorComponent,
     AnswerQuestionFormComponent,
+    QuestionsListViewComponent,
+    QuestionsToolbarComponent,
+    DragDropModule,
     RouterModule,
   ],
   template: `
@@ -158,78 +168,58 @@ import { parseLocalDate, formatLocalDate } from '../../../utils/utils';
               <div>
                 <h2 class="text-xl font-bold mb-2">انتخاب تمرینات</h2>
                 <!-- Search Field -->
-                <div class="mb-4">
-                  <label class="block font-medium mb-1">جستجوی تمرینات:</label>
-                  <input
-                    type="text"
-                    [(ngModel)]="searchQuery"
-                    placeholder="جستجو بر اساس عنوان، گروه، متن یا برچسب"
-                    class="border border-gray-300 rounded px-3 py-2 w-full"
-                  />
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  @for (question of filteredQuestions(); track question.id) {
-                  <div class="border border-gray-300 p-4 flex flex-col gap-2">
-                    <div>
-                      <h3 class="font-semibold">
-                        {{ question.title || 'بدون عنوان' }}
-                      </h3>
-                      <p class="text-gray-700">{{ question.prompt }}</p>
-                      @if (question.groupName) {
-                      <p class="text-sm text-gray-500">
-                        گروه: {{ question.groupName }}
-                      </p>
-                      }
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                      <!-- Question Type Badge -->
-                      <span
-                        class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded"
-                      >
-                        {{ question.type }}
-                      </span>
-                      <!-- Tags Badges -->
-                      @if (question.tags?.length) { @for (tag of question.tags;
-                      track tag.id) {
-                      <span
-                        class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded"
-                      >
-                        {{ tag.name }}
-                      </span>
-                      } }
-                    </div>
-                    <button
-                      (click)="addPractice(question)"
-                      class="c-primary rounded px-3 py-1 self-start"
-                    >
-                      اضافه کن
-                    </button>
-                  </div>
-                  }
-                </div>
+                <app-questions-toolbar
+                  [allQuestions]="availableQuestions"
+                  (filtered)="questionsFiltered = $event"
+                  [(displayMode)]="displayMode"
+                  [(grouping)]="grouping"
+                ></app-questions-toolbar>
+
+                <app-questions-list-view
+                  [questions]="questionsFiltered"
+                  [displayMode]="displayMode"
+                  [grouping]="grouping"
+                  [qActions]="['add']"
+                  [gActions]="['add']"
+                  (addQ)="onAddQ($event)"
+                  (addG)="onAddG($event)"
+                ></app-questions-list-view>
               </div>
             </div>
 
             <div class="mt-4">
               <app-h-separator title="تمرینات انتخاب شده"></app-h-separator>
               @if (selectedQuestions.length > 0) {
-              <ul class="list-disc pl-6">
+              <span class="text-gray-600"
+                >ترتیب سوالات را میتوانید به دلخواه عوض کنید</span
+              >
+              <ul
+                cdkDropList
+                (cdkDropListDropped)="drop($event)"
+                class="list-disc pl-6"
+              >
                 @for (question of selectedQuestions; let i = $index; track
                 question.id) {
-                <li class="flex justify-between items-center">
-                  <div class="flex gap-2">
-                    @if (question.title) {<span>{{ question.title }}: </span>}
-                    <span>{{ question.prompt }}</span>
-                    @if (question.groupName) {<span
-                      >({{ question.groupName }})</span
-                    >}
-                  </div>
-                  <button
-                    (click)="removePractice(i)"
-                    class="text-red-500 hover:underline"
+
+                <li>
+                  <div
+                    cdkDrag
+                    class="flex justify-between items-center bg-white border p-2 mb-1 rounded shadow cursor-move"
                   >
-                    حذف
-                  </button>
+                    <div class="flex gap-2">
+                      @if (question.title) {<span>{{ question.title }}: </span>}
+                      <span>{{ question.prompt }}</span>
+                      @if (question.groupName) {
+                      <span>({{ question.groupName }})</span>
+                      }
+                    </div>
+                    <button
+                      (click)="removePractice(i)"
+                      class="text-red-500 hover:underline"
+                    >
+                      حذف
+                    </button>
+                  </div>
                 </li>
                 }
               </ul>
@@ -273,10 +263,11 @@ export class PlanningUpsertComponent {
 
   today = new Date();
 
-  searchQuery: string = '';
-
   selectedQuestions: Question[] = [];
   availableQuestions: Question[] = [];
+  displayMode: 'table' | 'cards' | 'compact' = 'cards';
+  grouping = false;
+  questionsFiltered: Question[] = [];
 
   questionService: CrudBaseService<Question>;
   timetableService: CrudBaseService<UserTimetable>;
@@ -304,6 +295,7 @@ export class PlanningUpsertComponent {
   loadQuestions() {
     this.questionService.getAll().subscribe((questions) => {
       this.availableQuestions = questions;
+      this.questionsFiltered = questions;
     });
   }
 
@@ -347,17 +339,6 @@ export class PlanningUpsertComponent {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
 
-  filteredQuestions(): Question[] {
-    if (!this.searchQuery.trim()) return this.availableQuestions;
-    const query = this.searchQuery.toLowerCase();
-    return this.availableQuestions.filter(
-      (q) =>
-        (q.title && q.title.toLowerCase().includes(query)) ||
-        q.prompt.toLowerCase().includes(query) ||
-        (q.tags && q.tags.some((tag) => tag.name.toLowerCase().includes(query)))
-    );
-  }
-
   isFormValid = computed(
     () =>
       this.startDate &&
@@ -365,6 +346,14 @@ export class PlanningUpsertComponent {
       this.durationUnit &&
       this.selectedQuestions.length > 0
   );
+
+  drop(event: CdkDragDrop<Question[]>) {
+    moveItemInArray(
+      this.selectedQuestions,
+      event.previousIndex,
+      event.currentIndex
+    );
+  }
 
   calculateEndTime(): Date {
     const start = new Date(this.startDate);
@@ -400,13 +389,25 @@ export class PlanningUpsertComponent {
     };
   }
 
-  addPractice(question: Question) {
+  onAddQ(question: Question) {
     if (!this.selectedQuestions.some((q) => q.id === question.id)) {
       this.selectedQuestions.push(question);
       this.availableQuestions = this.availableQuestions.filter(
         (q) => q.id !== question.id
       );
     }
+  }
+
+  onAddG(groupName: string) {
+    const gQuestions = this.availableQuestions.filter(
+      (q) => q.groupName === groupName
+    );
+    gQuestions.forEach((question) => {
+      this.selectedQuestions.push(question);
+      this.availableQuestions = this.availableQuestions.filter(
+        (q) => q.id !== question.id
+      );
+    });
   }
 
   removePractice(index: number) {

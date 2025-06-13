@@ -110,13 +110,13 @@ export class QuestionsAdminComponent implements OnInit {
     this.router.navigate(['/admin/questions/create']);
   }
 
-  onEdit(id: string | undefined) {
-    if (id) {
-      this.router.navigate(['/admin/questions', id, 'edit']);
+  onEdit(q: Question | undefined) {
+    if (q) {
+      this.router.navigate(['/admin/questions', q.id, 'edit']);
     }
   }
 
-  onDelete(id: string | undefined) {
+  onDelete(q: Question | undefined) {
     // TODO: Call delete API
   }
 }
