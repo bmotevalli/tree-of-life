@@ -197,12 +197,17 @@ import { Question } from '../../../interfaces/question.interface';
         }
       </ul>
     </ng-template>
+
     @if (grouping() && groupedQuestions()) {
     <mat-accordion multi>
       @for (group of groupNames(); track group) {
       <mat-expansion-panel expanded="false">
         <mat-expansion-panel-header>
-          <mat-panel-title>{{ group }}</mat-panel-title>
+          <div class="w-full justify-end">
+            <span>{{ group }}</span>
+          </div>
+
+          <!-- <mat-panel-title>{{ group }}</mat-panel-title> -->
           <mat-panel-description class="!justify-end">
             @if (gActions().length > 0) {
             <div class="mt-2 flex gap-2">

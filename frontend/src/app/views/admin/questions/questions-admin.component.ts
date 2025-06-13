@@ -10,6 +10,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { QuestionsListViewComponent } from './questions-list-view.component';
+import { QuestionsToolbarComponent } from './questions-list-toolbar.component';
 import {
   CrudBaseService,
   CrudServiceFactory,
@@ -31,49 +32,29 @@ import { Question } from '../../../interfaces/question.interface';
     FormsModule,
     RouterModule,
     QuestionsListViewComponent,
+    QuestionsToolbarComponent,
   ],
   template: `
     <mat-card
       class="bg-white !bg-white shadow-lg p-6 max-w-7xl mx-auto min-h-[80vh]"
     >
-      <!-- Toolbar with Create Button + Toggles -->
-      <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
-        <!-- Left: View & Grouping Toggles -->
-        <div class="flex items-center gap-4 flex-wrap">
-          <mat-button-toggle-group
-            [(ngModel)]="displayMode"
-            name="viewMode"
-            aria-label="View mode"
-          >
-            <mat-button-toggle value="table" matTooltip="نمایش جدول">
-              <mat-icon>table_chart</mat-icon>
-            </mat-button-toggle>
-            <mat-button-toggle value="cards" matTooltip="نمایش کارت">
-              <mat-icon>view_module</mat-icon>
-            </mat-button-toggle>
-            <mat-button-toggle value="compact" matTooltip="نمایش فشرده">
-              <mat-icon>view_list</mat-icon>
-            </mat-button-toggle>
-          </mat-button-toggle-group>
-
-          <mat-slide-toggle [(ngModel)]="grouping"
-            >نمایش گروهی</mat-slide-toggle
-          >
-        </div>
-
-        <!-- Right: Create Button -->
-        <button
-          mat-raised-button
-          class="c-primary max-w-[150px]"
-          (click)="onCreate()"
-        >
-          تمرین جدید
-        </button>
-      </div>
-
       @if (questions && questions.length > 0) {
+
+      <app-questions-toolbar
+        [allQuestions]="questions"
+        (filtered)="questionsFiltered = $event"
+        [(displayMode)]="displayMode"
+        [(grouping)]="grouping"
+      ></app-questions-toolbar>
+      <button
+        mat-raised-button
+        class="c-primary max-w-[150px] m-2"
+        (click)="onCreate()"
+      >
+        تمرین جدید
+      </button>
       <app-questions-list-view
-        [questions]="questions"
+        [questions]="questionsFiltered"
         [displayMode]="displayMode"
         [grouping]="grouping"
         [qActions]="['edit', 'delete']"
@@ -95,7 +76,9 @@ export class QuestionsAdminComponent implements OnInit {
   displayMode: 'table' | 'cards' | 'compact' = 'table';
   grouping = false;
 
-  questions: Question[] = []; // TODO: Populate from backend
+  questions: Question[] = [];
+  questionsFiltered: Question[] = [];
+
   columns: string[] = [
     'title',
     'prompt',
@@ -118,6 +101,7 @@ export class QuestionsAdminComponent implements OnInit {
   loadQuestions() {
     this.questionService.getAll().subscribe((questions) => {
       this.questions = questions;
+      this.questionsFiltered = questions; // set initial state
     });
   }
 
