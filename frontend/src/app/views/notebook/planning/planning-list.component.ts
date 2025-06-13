@@ -6,10 +6,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { RouterModule, Router } from '@angular/router';
-import {
-  CrudBaseService,
-  CrudServiceFactory,
-} from '../../../services/crud-base.service';
 import { UserTimetable } from '../../../interfaces/user-question.interface';
 import { parseLocalDate } from '../../../utils/utils';
 import { ConfirmDialogComponent } from '../../../core/shared/confirm-dialog.component';
@@ -29,7 +25,9 @@ import { TimetableService } from '../../../services/timetable.service';
     RouterModule,
   ],
   template: `
-    <mat-card class="bg-white !bg-white shadow-lg w-full min-h-[80vh]  p-6">
+    <mat-card
+      class="bg-white !bg-white shadow-lg max-w-4xl mx-auto min-h-[80vh]  p-6"
+    >
       <button
         mat-raised-button
         class="c-primary mb-2 max-w-[150px]"
