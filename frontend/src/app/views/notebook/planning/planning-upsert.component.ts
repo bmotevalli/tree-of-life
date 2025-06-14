@@ -335,7 +335,7 @@ export class PlanningUpsertComponent {
   dateDiff(start: string, end: string): number {
     const startDate = parseLocalDate(start);
     const endDate = parseLocalDate(end);
-    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime() + 1);
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
 
@@ -360,16 +360,16 @@ export class PlanningUpsertComponent {
     let end = new Date(start);
     switch (this.durationUnit) {
       case 'day':
-        end.setDate(end.getDate() + this.durationNumber);
+        end.setDate(end.getDate() + this.durationNumber - 1);
         break;
       case 'week':
-        end.setDate(end.getDate() + this.durationNumber * 7);
+        end.setDate(end.getDate() + this.durationNumber * 7 - 1);
         break;
       case 'month':
         end.setMonth(end.getMonth() + this.durationNumber);
         break;
       case 'chelleh':
-        end.setDate(end.getDate() + this.durationNumber * 40);
+        end.setDate(end.getDate() + this.durationNumber * 40 - 1);
         break;
     }
     return end;
