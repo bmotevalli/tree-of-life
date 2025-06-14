@@ -148,7 +148,8 @@ export class AnswerQuestionFormComponent implements OnInit {
 
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
-  private _answers = signal<Record<string, UserAnswerRead>>({});
+  private _answers = signal<Record<string, any>>({});
+  storedAnswers = signal<UserAnswerRead[]>([]);
   private userAnswerService = inject(UserAnswerService);
 
   ngOnInit() {
@@ -197,7 +198,7 @@ export class AnswerQuestionFormComponent implements OnInit {
           questionId,
           dayOfPlan,
           isSubmitted,
-          ...{ answer: answer.answer },
+          answer,
         };
 
         return this.userAnswerService.create(payload).pipe(
@@ -238,9 +239,10 @@ export class AnswerQuestionFormComponent implements OnInit {
         .pipe(finalize(() => this.loading.set(false)))
         .subscribe({
           next: (answers) => {
+            this.storedAnswers.set(answers);
             const prefilled: Record<string, any> = {};
             answers.forEach((ans) => {
-              prefilled[ans.questionId] = ans;
+              prefilled[ans.questionId] = ans.answer;
             });
             this._answers.set(prefilled);
           },
@@ -254,7 +256,7 @@ export class AnswerQuestionFormComponent implements OnInit {
 
   getQuestionAnswer(question: Question) {
     if (question.id) {
-      return this._answers()[question.id]?.answer;
+      return this._answers()[question.id];
     }
   }
 
@@ -290,6 +292,6 @@ export class AnswerQuestionFormComponent implements OnInit {
   // COMPUTES
 
   readonly formSubmitted = computed(() =>
-    Object.values(this._answers()).some((ans) => ans.isSubmitted)
+    Object.values(this.storedAnswers()).some((ans) => ans.isSubmitted)
   );
 }
