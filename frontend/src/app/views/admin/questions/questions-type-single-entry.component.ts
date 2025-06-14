@@ -21,7 +21,7 @@ import { Question } from '../../../interfaces/question.interface';
       </label>
       }
       <div class="flex items-center gap-2">
-        <span class="whitespace-nowrap"> {{ question()?.prompt }}: </span>
+        <span class="whitespace-wrap"> {{ question()?.prompt }}: </span>
 
         <!-- Number Answer -->
         @if (question()?.type === 'number') {

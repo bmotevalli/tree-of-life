@@ -26,6 +26,7 @@ class QuestionBase(BaseSchema, CamelModel):
     options: Optional[Any]
     meta: Optional[Any]
     example_answer: Optional[str] = None
+    group_id: Optional[UUID] = None
 
 
 class QuestionRead(QuestionBase):
@@ -36,7 +37,7 @@ class QuestionRead(QuestionBase):
         orm_mode = True
 
 class QuestionCreate(QuestionBase):
-    group_id: Optional[UUID] = None
+    pass
 
 
 

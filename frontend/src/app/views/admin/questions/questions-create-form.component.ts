@@ -313,7 +313,6 @@ export class QuestionFormComponent {
             title: question.title || '',
             prompt: question.prompt,
             type: question.type,
-            options: question.options || [],
             meta: question.meta || '',
             groupId: question.groupId || null,
             exampleAnswer: question.exampleAnswer || '',
@@ -332,10 +331,25 @@ export class QuestionFormComponent {
             );
           }
 
+          // ✅ Set options for multiple/single choice
+          if (
+            ['multiple_choice', 'single_choice'].includes(question.type) &&
+            question.options
+          ) {
+            this.questionForm.setControl(
+              'options',
+              this.fb.array(
+                question.options.map((opt) =>
+                  this.fb.control(opt, Validators.required)
+                )
+              )
+            );
+          }
+
           // Set tags
           const tagsControl = this.questionForm.get('tags');
           if (tagsControl && question.tags) {
-            tagsControl.setValue(question.tags);
+            tagsControl.setValue(question.tags.map((tag) => tag.id));
           }
         },
         error: (err: any) => {
