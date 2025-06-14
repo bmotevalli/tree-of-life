@@ -76,15 +76,15 @@ import { Question } from '../../../interfaces/question.interface';
           <td mat-cell *matCellDef="let q">
             @if (qActions().length > 0) { @for (action of qActions(); track
             action) { @if (action === 'add') {
-            <button mat-icon-button color="primary" (click)="addQ.emit(q.id)">
+            <button mat-icon-button color="primary" (click)="addQ.emit(q)">
               <mat-icon>add</mat-icon>
             </button>
             } @if (action === 'edit') {
-            <button mat-icon-button color="primary" (click)="editQ.emit(q.id)">
+            <button mat-icon-button color="primary" (click)="editQ.emit(q)">
               <mat-icon>edit</mat-icon>
             </button>
             } @if (action === 'delete') {
-            <button mat-icon-button color="warn" (click)="deleteQ.emit(q.id)">
+            <button mat-icon-button color="warn" (click)="deleteQ.emit(q)">
               <mat-icon>delete</mat-icon>
             </button>
             } } }
@@ -134,7 +134,7 @@ import { Question } from '../../../interfaces/question.interface';
             <button
               mat-stroked-button
               color="primary"
-              (click)="addQ.emit(q.id); $event.stopPropagation()"
+              (click)="addQ.emit(q); $event.stopPropagation()"
             >
               اضافه کن
             </button>
@@ -142,7 +142,7 @@ import { Question } from '../../../interfaces/question.interface';
             <button
               mat-stroked-button
               color="primary"
-              (click)="editQ.emit(q.id); $event.stopPropagation()"
+              (click)="editQ.emit(q); $event.stopPropagation()"
             >
               ویرایش
             </button>
@@ -150,7 +150,7 @@ import { Question } from '../../../interfaces/question.interface';
             <button
               mat-stroked-button
               color="warn"
-              (click)="deleteQ.emit(q.id); $event.stopPropagation()"
+              (click)="deleteQ.emit(q); $event.stopPropagation()"
             >
               حذف
             </button>
